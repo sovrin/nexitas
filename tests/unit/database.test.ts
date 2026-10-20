@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { afterEach, describe, expect, it } from 'vitest'
-import { openDatabase } from '../../server/core/database'
+import {
+  disableModule,
+  enableModule,
+  enabledModuleIds,
+  installedModuleIds,
+  openDatabase,
+} from '../../server/core/database'
 import type { NexitasModule } from '../../shared/modules'
 
 const dirs: string[] = []
@@ -61,38 +67,6 @@ describe('database', () => {
     expect(versions(db)).toContainEqual({ id: 'notes', version: 2 })
   })
 
-  it('continues an app that kept its schema in user_version', () => {
-    const path = file()
-    // As censitas left it before nexitas: its own steps done, the owner tables among them.
-    const old = new DatabaseSync(path)
-    old.exec(`
-      CREATE TABLE notes (id INTEGER PRIMARY KEY, text TEXT NOT NULL);
-      CREATE TABLE owner (id INTEGER PRIMARY KEY CHECK (id = 1), email TEXT NOT NULL, password_hash TEXT NOT NULL);
-      CREATE TABLE sessions (token_hash TEXT PRIMARY KEY, expires_at INTEGER NOT NULL);
-      PRAGMA user_version = 1;
-    `)
-    old.close()
-    const db = open(path, [{ ...notes, adoptsUserVersion: true }])
-    expect(versions(db)).toContainEqual({ id: 'notes', version: 2 })
-    expect(
-      db.prepare("SELECT 1 FROM pragma_table_info('notes') WHERE name = 'pinned'").get(),
-    ).toBeTruthy()
-  })
-
-  it('lets a module create the owner tables itself on a fresh install', () => {
-    const owned: NexitasModule = {
-      id: 'owned',
-      migrations: [
-        `CREATE TABLE owner (id INTEGER PRIMARY KEY CHECK (id = 1), email TEXT NOT NULL, password_hash TEXT NOT NULL);
-         CREATE TABLE sessions (token_hash TEXT PRIMARY KEY, expires_at INTEGER NOT NULL);`,
-      ],
-    }
-    expect(versions(open(file(), [owned]))).toEqual([
-      { id: 'nexitas', version: 1 },
-      { id: 'owned', version: 1 },
-    ])
-  })
-
   it('refuses a database a newer version wrote, and leaves a failed step undone', () => {
     const path = file()
     open(path, [notes]).close()
@@ -104,5 +78,18 @@ describe('database', () => {
     const db = open(path, [notes])
     expect(versions(db)).not.toContainEqual(expect.objectContaining({ id: 'broken' }))
     expect(db.prepare("SELECT 1 FROM sqlite_master WHERE name = 'a'").get()).toBeUndefined()
+  })
+
+  it('switches a module on with its schema, and off keeping its data', () => {
+    const db = open(file())
+    expect(enabledModuleIds(db).size).toBe(0)
+    enableModule(db, notes)
+    expect([...enabledModuleIds(db)]).toEqual(['notes'])
+    db.prepare("INSERT INTO notes (text) VALUES ('kept')").run()
+    disableModule(db, 'notes')
+    expect(enabledModuleIds(db).size).toBe(0)
+    expect([...installedModuleIds(db)]).toEqual(['notes'])
+    enableModule(db, notes)
+    expect(db.prepare('SELECT text FROM notes').get()).toEqual({ text: 'kept' })
   })
 })

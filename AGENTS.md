@@ -1,20 +1,22 @@
 # Agent notes for nexitas
 
-Conventions for working on nexitas, the core layer the apps extend.
+Conventions for working on nexitas, the app the modules (collatas, censitas) plug into.
 
 ## Code
 
 - Keep comprehension debt low: explicit control flow, small modules, framework conventions, no
   speculative abstractions. Comments say why, not what.
-- nexitas holds only what every app needs. Something one app needs stays in that app; it moves
-  here once a second one needs it too.
-- Modules plug in only through the interfaces in `shared/modules.ts`. Change them additively: the
-  apps out there depend on them.
-- Inside the layer, import by relative path: `~` and `#shared` resolve against the app that
-  extends it. Modules reach the core through `#nexitas/...`.
+- nexitas holds only what every module needs (the owner, projects, the shell). Something one
+  module needs stays in that module; it moves here once a second one needs it too.
+- Modules are layers nexitas extends, named in `modules.json` and fetched into `.modules/` by
+  `pnpm modules`, never discovered. Every install switches on the ones it uses. They plug in only
+  through the interfaces in `shared/modules.ts`; change those additively, the modules depend on
+  them.
+- Import by relative path, here and in the modules: in a layer, `~` and `#shared` resolve against
+  the app. Modules reach the core through `#nexitas/...`.
 - Data access is plain SQL in `server/core/*.ts`: functions that take the database first, no ORM.
   The core's schema changes are a new step in `core.migrations` (`server/core/database.ts`); never
-  edit a released step.
+  edit a released step. The core's steps run before the modules', which may refer to `projects`.
 - Privacy is the product of the apps on top. The core stores no IP address, user agent or
   identifier of anyone but the owner; the address is read in memory for the sign-in limit, and
   dropped.
@@ -31,7 +33,8 @@ Conventions for working on nexitas, the core layer the apps extend.
 
 ## Checks
 
-`pnpm check`, `pnpm lint`, `pnpm format:check` and `pnpm build` must stay green.
+`pnpm check`, `pnpm lint`, `pnpm format:check` and `pnpm build` must stay green, with the modules in
+`.modules/` (`pnpm modules`).
 
 ## Commits and releases
 

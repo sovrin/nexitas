@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import type { H3Event } from 'h3'
 import type { NexitasModule } from '../../shared/modules'
-import { openDatabase } from '../core/database'
+import { enabledModuleIds, openDatabase, updateModules } from '../core/database'
 import { senderNetwork } from '../core/limits'
 
 const modules: NexitasModule[] = []
@@ -16,7 +16,14 @@ export function registerModule(module: NexitasModule) {
   modules.push(module)
 }
 
+/** Every module in this build, on or off. */
 export const nexitasModules = (): readonly NexitasModule[] => modules
+
+/** The modules the owner switched on: only these run, migrate and answer. */
+export function enabledModules(): NexitasModule[] {
+  const on = enabledModuleIds(nexitasDatabase())
+  return modules.filter((module) => on.has(module.id))
+}
 
 /** The app's name, as its nuxt.config sets it. */
 export const nexitasName = () => useRuntimeConfig().public.nexitas.name
@@ -30,7 +37,15 @@ export function nexitasEnv(name: string) {
 export function nexitasDatabase() {
   const dataDir = nexitasEnv('DATA_DIR')
   if (!dataDir) throw new Error(`${nexitasName().toUpperCase()}_DATA_DIR must be set.`)
-  return (database ??= openDatabase(resolve(dataDir, `${nexitasName()}.sqlite`), modules))
+  if (database) return database
+  // The core first, which knows what is switched on; then only those modules.
+  const db = openDatabase(resolve(dataDir, `${nexitasName()}.sqlite`))
+  const on = enabledModuleIds(db)
+  updateModules(
+    db,
+    modules.filter((module) => on.has(module.id)),
+  )
+  return (database = db)
 }
 
 /** Where the app lives; its own writes must come from here. */

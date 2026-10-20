@@ -124,3 +124,9 @@ button.link[data-quiet] {
 .row-move {
   transition: transform var(--ae-duration) var(--ease-in-out);
 }
+
+/* A snippet wraps a long address instead of scrolling inside the column (EmbedCode). */
+.snippet {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
