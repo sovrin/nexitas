@@ -79,6 +79,20 @@ describe('database', () => {
     ).toBeTruthy()
   })
 
+  it('lets a module create the owner tables itself on a fresh install', () => {
+    const owned: NexitasModule = {
+      id: 'owned',
+      migrations: [
+        `CREATE TABLE owner (id INTEGER PRIMARY KEY CHECK (id = 1), email TEXT NOT NULL, password_hash TEXT NOT NULL);
+         CREATE TABLE sessions (token_hash TEXT PRIMARY KEY, expires_at INTEGER NOT NULL);`,
+      ],
+    }
+    expect(versions(open(file(), [owned]))).toEqual([
+      { id: 'nexitas', version: 1 },
+      { id: 'owned', version: 1 },
+    ])
+  })
+
   it('refuses a database a newer version wrote, and leaves a failed step undone', () => {
     const path = file()
     open(path, [notes]).close()

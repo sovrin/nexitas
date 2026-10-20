@@ -3,8 +3,8 @@ import { dirname } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import type { NexitasModule } from '../../shared/modules'
 
-// The core's own tables, as a module of its own. IF NOT EXISTS because the apps that move onto
-// nexitas already created them in their own steps.
+// The core's own tables, as a module of its own. They come after the modules' and use IF NOT
+// EXISTS, because the apps that moved onto nexitas create them in a released step of their own.
 export const core: NexitasModule = {
   id: 'nexitas',
   migrations: [
@@ -25,7 +25,7 @@ export function openDatabase(file: string, modules: readonly NexitasModule[] = [
       db.exec(
         'CREATE TABLE IF NOT EXISTS modules (id TEXT PRIMARY KEY, version INTEGER NOT NULL) WITHOUT ROWID',
       )
-      for (const module of [core, ...modules]) migrate(db, module)
+      for (const module of [...modules, core]) migrate(db, module)
     })
   } catch (error) {
     db.close()
