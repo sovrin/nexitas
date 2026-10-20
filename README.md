@@ -10,11 +10,12 @@ a click away, and the overview shows what changed on each, at a glance.
 
 ## Modules
 
-| Module                                         | Shown as | What it does                                                    |
-| ---------------------------------------------- | -------- | --------------------------------------------------------------- |
-| [collatas](https://github.com/sovrin/collatas) | Feedback | an embeddable feedback form per project, and one inbox for all  |
-| [censitas](https://github.com/sovrin/censitas) | Usage    | named events counted per day; nothing that tells visitors apart |
-| erratas (planned)                              | Errors   | what breaks in your sites                                       |
+| Module                                         | Shown as | What it does                                                         |
+| ---------------------------------------------- | -------- | -------------------------------------------------------------------- |
+| [collatas](https://github.com/sovrin/collatas) | Feedback | an embeddable feedback form per project, and one inbox for all       |
+| [censitas](https://github.com/sovrin/censitas) | Usage    | named events counted per day; nothing that tells visitors apart      |
+| [veritas](https://github.com/sovrin/veritas)   | Content  | collections and entries per project, delivered to your sites as JSON |
+| erratas (planned)                              | Errors   | what breaks in your sites                                            |
 
 Every module in the build is off until you switch it on: at setup, or later under Modules. Off, a
 module runs nothing and answers nothing (its pages and routes are 404, its hourly work stops, the

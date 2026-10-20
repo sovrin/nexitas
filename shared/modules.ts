@@ -17,6 +17,9 @@ export interface NexitasModule {
   /** Every path prefix the module serves: its pages, its /api routes and its public ones. While
    *  the owner has the module switched off, all of them answer 404. */
   paths?: readonly string[]
+  /** The largest body, in bytes, a write to its own paths accepts, such as a long entry. 64 kB
+   *  when left out. Public routes set theirs on the route. */
+  maxBody?: number
   /** Runs once at start and every hour while the module is on, such as a cleanup. */
   hourly?: (db: DatabaseSync) => void
   /** What this module adds to the status line under every page. */

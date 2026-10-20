@@ -15,8 +15,8 @@ const OPEN_API = new Set([
   '/api/auth/logout',
   '/api/auth/setup',
 ])
-// A form or a module's settings are a few kB. Checked here, not left to whichever proxy is in
-// front.
+// A form or a module's settings are a few kB; a module that takes more says so (maxBody). Checked
+// here, not left to whichever proxy is in front.
 const MAX_BODY = 64 * 1024
 
 export default defineEventHandler((event) => {
@@ -49,7 +49,7 @@ export default defineEventHandler((event) => {
     setHeader(event, 'Cache-Control', 'no-store')
     return open.route.guard?.(event, open.match)
   }
-  if (!reads) limitBody(event, MAX_BODY)
+  if (!reads) limitBody(event, owner?.maxBody ?? MAX_BODY)
   if (!path.startsWith('/api/')) return
   setHeader(event, 'Cache-Control', 'no-store')
   if (!reads) {
