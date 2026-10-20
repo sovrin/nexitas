@@ -2,8 +2,10 @@
 import { errorMessage } from '../lib/format'
 const props = defineProps<{ setup?: boolean }>()
 const { name } = useRuntimeConfig().public.nexitas
-// The lines an app or module sets in its app.config.
-const { text } = useAppConfig().nexitas
+// The lines an app or module sets in its app.config, and the modules this build has.
+const { text, modules } = useAppConfig().nexitas
+// Setup switches on only what the owner picks: nothing runs, or counts, until asked for.
+const chosen = ref<string[]>([])
 const email = ref('')
 const password = ref('')
 const token = ref('')
@@ -18,7 +20,7 @@ async function submit() {
       body: {
         email: email.value,
         password: password.value,
-        ...(props.setup ? { token: token.value.trim() } : {}),
+        ...(props.setup ? { token: token.value.trim(), modules: chosen.value } : {}),
       },
     })
     password.value = ''
@@ -93,6 +95,21 @@ async function submit() {
               setup.</small
             >
           </div>
+          <fieldset v-if="setup && modules.length" class="stack gap-2">
+            <legend class="text-s weight-600 pb-2">What it should do</legend>
+            <label
+              v-for="module in modules"
+              :key="module.id"
+              class="cluster gap-2 flex-nowrap items-start"
+            >
+              <input v-model="chosen" type="checkbox" :value="module.id" />
+              <span class="stack gap-1">
+                <ModuleLabel :module="module.id" />
+                <small class="text-muted">{{ module.description }}</small>
+              </span>
+            </label>
+            <small class="text-muted">You can switch each on or off later, under Modules.</small>
+          </fieldset>
         </fieldset>
         <div v-if="error" class="alert" data-tone="danger" role="alert">
           <div>

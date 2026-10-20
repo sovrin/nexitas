@@ -1,7 +1,8 @@
 import { setupSchema } from '../../../shared/contracts'
 import { createOwner, getOwner, hashPassword, tokensMatch } from '../../core/auth'
+import { enableModule } from '../../core/database'
 import { checkAuthRate, setOwnerSession } from '../../utils/auth'
-import { nexitasDatabase, nexitasEnv } from '../../utils/nexitas'
+import { nexitasDatabase, nexitasEnv, nexitasModules } from '../../utils/nexitas'
 
 export default defineEventHandler(async (event) => {
   const db = nexitasDatabase()
@@ -26,6 +27,8 @@ export default defineEventHandler(async (event) => {
   const passwordHash = await hashPassword(body.data.password)
   if (!createOwner(db, body.data.email, passwordHash))
     throw createError({ statusCode: 409, statusMessage: 'The owner account already exists.' })
+  for (const module of nexitasModules())
+    if (body.data.modules.includes(module.id)) enableModule(db, module)
   setOwnerSession(event)
   setResponseStatus(event, 201)
   return { email: body.data.email }

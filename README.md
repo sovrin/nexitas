@@ -1,55 +1,129 @@
 # nexitas
 
-The common core of a family of small self-hosted apps: censitas (usage counts), collatas (feedback)
-and what follows. It is a Nuxt layer. An app extends it and gets the owner's sign-in, the `/api`
-guard, live updates, the database and the page shell; it adds only what it is about. The
-interfaces in `shared/modules.ts` are how a module plugs into the core, so several modules can
-later run in one app and show their data side by side.
+A self-hosted app that tells you about your own sites and apps: what people say about them, how
+they are used, and soon what breaks in them. One install, one owner, one database, on your own
+server. What it does comes from modules, each switched on only if you want it.
 
-## What the core owns
+You add each of your sites once, as a **project**: its name and the origins its pages are served
+from. Every module works on those projects, so a site that collects feedback has its usage counts
+a click away, and the overview shows what changed on each, at a glance.
+
+## Modules
+
+| Module                                         | Shown as | What it does                                                    |
+| ---------------------------------------------- | -------- | --------------------------------------------------------------- |
+| [collatas](https://github.com/sovrin/collatas) | Feedback | an embeddable feedback form per project, and one inbox for all  |
+| [censitas](https://github.com/sovrin/censitas) | Usage    | named events counted per day; nothing that tells visitors apart |
+| erratas (planned)                              | Errors   | what breaks in your sites                                       |
+
+Every module in the build is off until you switch it on: at setup, or later under Modules. Off, a
+module runs nothing and answers nothing (its pages and routes are 404, its hourly work stops, the
+shell leaves it out), and switching it off keeps its data. An install without tracking never
+counts a thing.
+
+## Run it
+
+Node 24+ and pnpm 11. aequitas is not published yet: check it out next to this repository and
+build it once (`cd ../aequitas && pnpm install && pnpm build`). Then fetch the modules before the
+install, which prepares the app with them:
+
+```bash
+pnpm modules
+pnpm install
+pnpm dev
+```
+
+Open http://localhost:3000 and create the owner with the installation key from
+`.data/bootstrap-token`, choosing the modules to switch on.
+
+### With Docker Compose
+
+Copy `.env.example` to `.env`, set `NEXITAS_BOOTSTRAP_TOKEN` (`openssl rand -hex 32`) and the
+public address, `NEXITAS_ORIGIN=https://nexitas.example.com`. Then:
+
+```bash
+docker compose up -d --build
+```
+
+The image fetches the modules `modules.json` names itself, so local checkouts never reach it. The
+web service listens on `127.0.0.1:3000` (`NEXITAS_BIND`); data lives in the `nexitas-data` volume
+(`nexitas.sqlite`), so back it up and never `docker compose down -v`. The image runs as an
+unprivileged user on Alpine with only the node binary.
+
+TLS and the public address belong to your reverse proxy: put it, or the network it shares, in an
+untracked `compose.override.yaml`. The proxy must append the caller's address to
+`X-Forwarded-For`: the rate limits count senders by its last entry, and keep addresses only in
+memory or as a keyed hash. Keep it from logging the modules' public routes (`/v1/…`), or it stores
+the addresses nexitas drops. With Caddy, which logs nothing unless told to:
+
+```
+nexitas.example.com {
+	reverse_proxy 127.0.0.1:3000
+	header Strict-Transport-Security "max-age=31536000"
+}
+```
+
+Put nothing else (a CDN) in front of the proxy without changing how the sender is read.
+
+### Settings
+
+| Variable                  | What it is                                                             |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `NEXITAS_DATA_DIR`        | where the database lives, as `nexitas.sqlite`                          |
+| `NEXITAS_ORIGIN`          | the address the app is opened at; changes are only accepted from there |
+| `NEXITAS_BOOTSTRAP_TOKEN` | the installation key that protects the first setup                     |
+| `COLLATAS_WEBHOOK_URL`    | collatas: a URL that gets every new feedback as JSON (see its README)  |
+
+Forgot the password? `pnpm owner:reset --confirm` (with `NEXITAS_DATA_DIR` pointing at
+the data) removes the owner and every session, keeps everything else, and lets you set up again
+with the installation key.
+
+## How it is built
+
+nexitas holds what every module needs:
 
 - **The owner**: one account, set up once with an installation key, signed in with a session
   cookie. Passwords are hashed with scrypt, sessions are stored only as hashes, and sign-in
   attempts are limited in memory, so no address is kept.
+- **Projects**: id, name and origins. A module keeps its own settings per project and asks the core
+  whether an origin belongs to it (`projectAllows`).
+- **The switches**: which modules are on. The core runs only those: their migrations, routes,
+  hourly work and parts of the shell.
 - **The guard**: `/api/*` needs the owner's session, and writes need the app's exact origin. Only
   `/api/health` and the sign-in routes are open. A module's public routes are open on purpose,
   each with its own guard.
 - **Live updates**: one server-sent event stream per tab (`/api/events`). Whatever changes what the
   pages show calls `announceChange()`, or announces through a `pacedAnnouncer()` when it can come
   all the time; every view that shows data passes its refresh to `useLive`.
-- **The database**: one SQLite file per app, with the core's tables and every module's. Each module
-  has its own schema version, so modules grow on their own.
+- **The database**: one SQLite file through `node:sqlite`, with the core's tables and those of every
+  module switched on. Each module has its own schema version, so modules grow on their own.
 - **The shell**: built from [aequitas](../aequitas): the page layout, the nav, the status line under
-  every page, the sign-in and setup pages, `ConfirmDialog` and the theme switch.
+  every page, the sign-in and setup pages, the projects and Modules pages, `ConfirmDialog`,
+  `EmbedCode` and the theme switch.
 
-## Using it
+### The modules in a build
 
-An app extends the layer from a sibling checkout, as it consumes aequitas:
-
-```ts
-// nuxt.config.ts
-export default defineNuxtConfig({
-  extends: [process.env.NEXITAS_DIR ?? '../nexitas'],
-  runtimeConfig: { public: { nexitas: { name: 'censitas' } } },
-})
-```
-
-The name is shown in the shell and is the prefix of the app's environment variables:
-
-| Variable                 | What it is                                                                  |
-| ------------------------ | --------------------------------------------------------------------------- |
-| `<NAME>_DATA_DIR`        | where the database lives, as `<name>.sqlite`                                |
-| `<NAME>_ORIGIN`          | the address the app is opened at; writes to `/api` must come from it        |
-| `<NAME>_BOOTSTRAP_TOKEN` | the installation key that protects the first setup (`openssl rand -hex 32`) |
-
-Its scripts run the core's:
+`modules.json` names every module the build includes, each with the version it is built from:
 
 ```json
-"dev": "node --env-file-if-exists=.env --import tsx ../nexitas/scripts/dev.ts censitas 3100",
-"owner:reset": "node --env-file-if-exists=.env --import tsx ../nexitas/scripts/reset-owner.ts censitas"
+{ "collatas": "github:sovrin/collatas#master", "censitas": "github:sovrin/censitas#master" }
 ```
 
-## Writing a module
+`pnpm modules` fills the untracked `.modules/` with them, a shallow clone each, with its packages
+installed. The build extends exactly what `modules.json` names, from `.modules/`; a missing one
+stops it. The list is written out, never discovered, so what ships is what the manifest names.
+To work on a module, make its folder a symlink to your checkout; `pnpm modules` leaves it as it is:
+
+```bash
+ln -s ../../collatas .modules/collatas
+```
+
+### Writing a module
+
+A module is a Nuxt layer that nexitas extends; it does not extend nexitas itself and has no app of
+its own. It brings its pages under a path of its own, its API under `/api/<its things>`, and
+nothing that belongs to the whole app: no name, logo, favicon or sign-in lines. It joins with a
+line in `modules.json`.
 
 The server half is a `NexitasModule`, registered from a Nitro plugin:
 
@@ -60,47 +134,63 @@ import { registerModule } from '#nexitas/server/utils/nexitas'
 export default defineNitroPlugin(() =>
   registerModule({
     id: 'censitas',
-    migrations: ['CREATE TABLE counts (…)', 'CREATE TABLE sites (…)'],
+    migrations: [
+      'CREATE TABLE sites (id TEXT PRIMARY KEY, project_id TEXT REFERENCES projects(id), …)',
+    ],
     publicRoutes: [{ path: '/v1/e', maxBody: 4 * 1024, json: true }],
-    status: (db) => [{ text: `${countToday(db)} events today`, tone: 'success' }],
+    paths: ['/sites', '/api/sites'],
+    status: (db) => [{ text: `${countToday(db)} events today`, to: '/sites', tone: 'success' }],
+    projectStatus: (db, projectId) => [{ text: `${countToday(db, projectId)} today` }],
+    deleteProject: (db, projectId) => deleteSiteOf(db, projectId),
   }),
 )
 ```
 
-- **`migrations`**: schema steps, oldest first. Never edit a released step; add one. An app that
-  kept its schema in `PRAGMA user_version` before it moved onto nexitas sets
-  `adoptsUserVersion: true`, and its steps continue from there.
+- **`migrations`**: schema steps, oldest first. Never edit a released step; add one. The core's
+  run first, so a module's may refer to `projects`.
 - **`publicRoutes`**: routes outside `/api` that anyone may call, each with its body limit and an
-  optional `guard` for origins and CORS.
+  optional `guard` for origins and CORS (`projectAllows`).
+- **`paths`**: every prefix it serves, pages and `/api` alike, so they answer 404 while it is off.
+  Its static files (a script in `public/`) still load, but find nothing to call.
+- **`hourly`**: work such as a cleanup, run at start and every hour while it is on. A module keeps
+  no timers of its own.
 - **`status`**: what the module adds to the status line under every page.
+- **`projectStatus`** and **`deleteProject`**: its line about one project, and removing what it
+  keeps for one, in the core's transaction.
 
 The page half goes into `app/app.config.ts`:
 
 ```ts
 export default defineAppConfig({
   nexitas: {
-    nav: [{ to: '/', label: 'Sites', paths: ['/sites'] }],
-    text: {
-      setup: 'Create the owner account. What every site you add counts arrives here.',
-      signIn: 'Sign in to see how your sites are used.',
-      promise: 'One owner. Your server. The counts stay on it.',
-    },
+    modules: [
+      {
+        id: 'censitas',
+        label: 'Usage',
+        description: 'How your sites are used: event counts, nothing about visitors.',
+        icon: 'bar-chart',
+        panel: 'CensitasProject',
+      },
+    ],
+    nav: [{ to: '/sites', label: 'Usage', module: 'censitas' }],
   },
 })
 ```
 
-Its own `LogoMark.vue` and `public/favicon.svg` replace the core's. Everything else (pages, API
-routes, components) joins the app as in any Nuxt layer. Server code reaches the core through
-`#nexitas/server/...`, the pages through the auto-imported composables.
+The entry in `modules` is how the shell tells the modules apart: every line a module reports, on
+the overview, the status line and the project page, stands under its label and icon, and its nav
+entry carries the icon. The description stands beside its switch at setup and under Modules.
+Give each module an aequitas icon no other module uses. The panel is a component in the module's
+`app/components/global/`, given the project as `project`; the shell puts the label above it.
+Server code reaches the core through `#nexitas/server/...`, the pages through the auto-imported
+composables.
 
-## Development
-
-Node 24+ and pnpm 11. aequitas is not published yet: check it out next to this repository and
-build it first (`pnpm install && pnpm build` in `../aequitas`).
+## Checks
 
 ```bash
-pnpm install
-pnpm dev
+pnpm check         # typecheck of the app with every module, and the core's unit tests
+pnpm lint
+pnpm format:check
+pnpm build
+node ../aequitas/dist/aequitas-check.mjs --css app/assets/nexitas.css app/**/*.vue
 ```
-
-Run on its own, nexitas is the shell with no module: sign-in, setup and an empty home page.

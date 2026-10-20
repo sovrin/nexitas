@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
 import type { PublicRoute } from '../../shared/modules'
 import { requireOwner } from '../utils/auth'
-import { nexitasModules, nexitasName, nexitasOrigin } from '../utils/nexitas'
+import { enabledModuleIds } from '../core/database'
+import { nexitasDatabase, nexitasModules, nexitasName, nexitasOrigin } from '../utils/nexitas'
 
 // Two kinds of API live here. /api/* is the owner's: their session, and for writes the app's exact
 // origin. A module's public routes are open on purpose, each with its own guard. Pages themselves
@@ -32,6 +33,14 @@ export default defineEventHandler((event) => {
   const path = event.path.split('?')[0]!
   const reads = ['GET', 'HEAD', 'OPTIONS'].includes(event.method)
   const open = findPublicRoute(path)
+  // A module the owner switched off answers nothing, as if it were not there: JSON for its API and
+  // public routes, the not-found page for its pages. Its static files (a form's or tracker's
+  // script) still load, but find nothing to call.
+  const owner = findModule(path)
+  if (owner && !enabledModuleIds(nexitasDatabase()).has(owner.id)) {
+    if (open || path.startsWith('/api/')) event.node.req.headers.accept = 'application/json'
+    throw createError({ statusCode: 404, statusMessage: 'Page not found.' })
+  }
   if (open) {
     // Nuxt renders an error as a page unless the request asks for JSON, and the page's sign-in
     // redirect would answer a refused call with a 302.
@@ -59,6 +68,18 @@ export default defineEventHandler((event) => {
   }
   if (!OPEN_API.has(path)) requireOwner(event)
 })
+
+/** The module a path belongs to, by its paths or its public routes; the database is only asked
+ *  when one does. */
+function findModule(path: string) {
+  return nexitasModules().find(
+    (module) =>
+      module.paths?.some((prefix) => path === prefix || path.startsWith(`${prefix}/`)) ||
+      module.publicRoutes?.some((route) =>
+        typeof route.path === 'string' ? route.path === path : route.path.test(path),
+      ),
+  )
+}
 
 function findPublicRoute(
   path: string,

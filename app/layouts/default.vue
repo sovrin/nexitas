@@ -7,8 +7,12 @@ import { version } from '~~/package.json'
 const route = useRoute()
 const theme = useThemeMode()
 const { name } = useRuntimeConfig().public.nexitas
-// The sections every module adds in its app.config.
+// The sections every module adds in its app.config, those of modules switched off left out.
 const { nav } = useAppConfig().nexitas
+const { enabled } = useModules()
+const sections = computed(() =>
+  nav.filter((section) => !section.module || enabled.value.has(section.module)),
+)
 const current = (to: string, paths: readonly string[] = []) =>
   route.path === to || paths.some((path) => route.path.startsWith(path))
 const signingOut = ref(false)
@@ -40,13 +44,15 @@ async function logout() {
         >
         <span class="cluster gap-4">
           <NuxtLink
-            v-for="section in nav"
+            v-for="section in sections"
             :key="section.to"
             :to="section.to"
-            class="link"
+            class="link cluster gap-1 flex-nowrap"
             :data-quiet="current(section.to, section.paths) ? undefined : ''"
             :aria-current="current(section.to, section.paths) ? 'page' : undefined"
-            >{{ section.label }}</NuxtLink
+            ><ModuleLabel v-if="section.module" :module="section.module" icon-only />{{
+              section.label
+            }}</NuxtLink
           >
         </span>
       </nav>
@@ -62,6 +68,7 @@ async function logout() {
           <ThemeSwitch v-model="theme" />
           <span class="cluster gap-3">
             <span class="font-mono text-xs text-muted">v{{ version }}</span>
+            <NuxtLink to="/modules" class="link text-s" data-quiet>Modules</NuxtLink>
             <button
               type="button"
               class="link text-s"
