@@ -1,0 +1,31 @@
+name: Checks
+on: [push, pull_request]
+# Checks only read the code; the token can do no more.
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: nexitas
+      # aequitas is unpublished: check it out next to nexitas and build its dist/.
+      - uses: actions/checkout@v4
+        with:
+          repository: sovrin/aequitas
+          path: aequitas
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --global pnpm@11.15.1
+      - run: pnpm install --frozen-lockfile && pnpm build
+        working-directory: aequitas
+      - run: pnpm install --frozen-lockfile
+        working-directory: nexitas
+      - run: pnpm check
+        working-directory: nexitas
+      - run: pnpm lint && pnpm format:check
+        working-directory: nexitas
+      - run: pnpm build
+        working-directory: nexitas

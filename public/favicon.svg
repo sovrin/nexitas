@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- nexitas: two links of a chain. Ink on light, light on dark. -->
+  <style>
+    * { color: #1d232b; }
+    @media (prefers-color-scheme: dark) { * { color: #e9ebee; } }
+  </style>
+  <path d="M1 5h8v6H1zM7 5h8v6H7z" fill="none" stroke="currentColor" stroke-width="2" />
+</svg>

@@ -1,0 +1,47 @@
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+// nexitas is a Nuxt layer: an app extends it (`extends: ['../nexitas']`) and gets the owner's
+// sign-in, the /api guard, live updates, the database and the page shell. Modules plug into it
+// through the interfaces in shared/modules.ts. Run on its own, it is the shell with no module.
+//
+// aequitas is not published yet: it is consumed from the built dist/ of a sibling checkout
+// (../aequitas next to this repository). Run `pnpm build` there first, or point AEQUITAS_DIST
+// at another dist/ directory.
+const root = dirname(fileURLToPath(import.meta.url))
+const aequitas = resolve(root, process.env.AEQUITAS_DIST ?? '../aequitas/dist') + '/'
+
+export default defineNuxtConfig({
+  compatibilityDate: '2026-09-06',
+  devtools: { enabled: false },
+  css: [
+    `${aequitas}aequitas.css`,
+    `${aequitas}aequitas.icons.css`,
+    resolve(root, 'app/assets/nexitas.css'),
+  ],
+  // Paths in a layer resolve against the app that extends it, so modules reach the core through
+  // #nexitas and the layer reaches aequitas through @aequitas.
+  alias: { '@aequitas': aequitas, '#nexitas': root },
+  vite: { server: { fs: { allow: [root, resolve(aequitas, '..')] } } },
+  nitro: { preset: 'node-server' },
+  // Page changes crossfade through the browser's View Transitions (see nexitas.css for timing).
+  experimental: { viewTransition: true },
+  runtimeConfig: {
+    // The app's name: shown in the shell, and the prefix of its environment variables
+    // (CENSITAS_DATA_DIR, …) and its database file (censitas.sqlite). An app sets its own.
+    public: { nexitas: { name: 'nexitas' } },
+  },
+  app: {
+    head: {
+      // data-ae-manual: importing aequitas.js (setTheme) must not run its DOM-scanning init.
+      // Graphite keeps the accent neutral, so colour on screen only ever reports state.
+      htmlAttrs: {
+        lang: 'en',
+        'data-ae-manual': '',
+        'data-accent': 'graphite',
+        'data-density': 'compact',
+      },
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    },
+  },
+})
