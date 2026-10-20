@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url'
 const root = dirname(fileURLToPath(import.meta.url))
 const aequitas = resolve(root, process.env.AEQUITAS_DIST ?? '../aequitas/dist') + '/'
 // The modules in this build: exactly those modules.json names, from .modules/ (filled by
-// `pnpm modules`, or a symlink to a checkout of your own). Each install's owner then switches on
+// `node scripts/modules.ts`, or a symlink to a checkout of your own). Each install's owner then switches on
 // the ones it uses.
 const manifest: Record<string, string> = JSON.parse(
   readFileSync(resolve(root, 'modules.json'), 'utf8'),
@@ -20,7 +20,7 @@ const manifest: Record<string, string> = JSON.parse(
 const modules = Object.keys(manifest).map((id) => {
   const dir = resolve(root, '.modules', id)
   if (!existsSync(resolve(dir, 'nuxt.config.ts')))
-    throw new Error(`.modules/${id} is missing. Run \`pnpm modules\` first.`)
+    throw new Error(`.modules/${id} is missing. Run \`node scripts/modules.ts\` first.`)
   return dir
 })
 

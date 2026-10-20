@@ -97,7 +97,7 @@ module's, is a single first step. Modules no longer create the owner tables, and
 
 nexitas is the app you deploy and builds with the modules. The modules stop extending nexitas and
 become plain layers; nexitas extends them. Which ones: exactly those `modules.json` names, each
-pinned to a ref and fetched into the untracked `.modules/` by `pnpm modules` (or a symlink to a
+pinned to a ref and fetched into the untracked `.modules/` by `node scripts/modules.ts` (or a symlink to a
 checkout of your own). Every install runs that one build and the owner switches each module on or
 off; off, it migrates nothing, answers 404 on its paths and runs no hourly work. See the README.
 
@@ -119,7 +119,7 @@ What changes in each module, before any of the above:
 ### Three repositories (decided)
 
 collatas and censitas stay in their own repositories; nexitas' `modules.json` names them, and its
-CI and Dockerfile fetch them with `pnpm modules`. A module no longer builds on its own.
+CI and Dockerfile fetch them with `node scripts/modules.ts`. A module no longer builds on its own.
 
 ## 4. Existing installs
 

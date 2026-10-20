@@ -28,10 +28,13 @@ build it once (`cd ../aequitas && pnpm install && pnpm build`). Then fetch the m
 install, which prepares the app with them:
 
 ```bash
-pnpm modules
+node scripts/modules.ts
 pnpm install
 pnpm dev
 ```
+
+It runs with plain Node, not as a pnpm script: pnpm would install first, and the install needs
+the modules there.
 
 Open http://localhost:3000 and create the owner with the installation key from
 `.data/bootstrap-token`, choosing the modules to switch on.
@@ -109,10 +112,12 @@ nexitas holds what every module needs:
 { "collatas": "github:sovrin/collatas#master", "censitas": "github:sovrin/censitas#master" }
 ```
 
-`pnpm modules` fills the untracked `.modules/` with them, a shallow clone each, with its packages
+`node scripts/modules.ts` fills the untracked `.modules/` with them, a shallow clone each, with its packages
 installed. The build extends exactly what `modules.json` names, from `.modules/`; a missing one
 stops it. The list is written out, never discovered, so what ships is what the manifest names.
-To work on a module, make its folder a symlink to your checkout; `pnpm modules` leaves it as it is:
+It also links `.modules/nexitas/.nuxt` to nexitas' `.nuxt`, so a module's `tsconfig.json`, which
+finds nexitas' types at `../nexitas/.nuxt` as in a checkout next to nexitas, works there too.
+To work on a module, make its folder a symlink to your checkout; `node scripts/modules.ts` leaves it as it is:
 
 ```bash
 ln -s ../../collatas .modules/collatas
