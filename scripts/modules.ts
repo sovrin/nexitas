@@ -1,6 +1,7 @@
 // Fills .modules/ with the modules modules.json names: each a shallow clone at its ref, with its
 // packages installed. A folder that is a symlink (your own checkout, for working on a module) is
-// left as it is. Plain Node, so it runs before nexitas' own install.
+// left as it is. Plain Node, not a pnpm script: pnpm installs before it runs a script, and
+// nexitas' install prepares the app, which needs the modules there.
 //   node scripts/modules.ts
 import { execFileSync } from 'node:child_process'
 import { existsSync, lstatSync, mkdirSync, readFileSync } from 'node:fs'

@@ -13,7 +13,7 @@ ENV AEQUITAS_DIST=/aequitas/dist npm_config_store_dir=/pnpm/store
 # checkouts of your own, stays out (.dockerignore). Every release changes the sources, so this
 # layer always reruns: keep the downloaded packages in a build cache instead, and it only links
 # them. Each module's files resolve their packages from its own node_modules.
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm modules && pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store node scripts/modules.ts && pnpm install --frozen-lockfile
 RUN pnpm build
 
 # The built server is plain JavaScript with no native modules, so the runtime needs only node:

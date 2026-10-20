@@ -22,7 +22,7 @@ jobs:
       - run: pnpm install --frozen-lockfile && pnpm build
         working-directory: aequitas
       # The modules modules.json names, before the install prepares the app with them.
-      - run: pnpm modules && pnpm install --frozen-lockfile
+      - run: node scripts/modules.ts && pnpm install --frozen-lockfile
         working-directory: nexitas
       - run: pnpm check
         working-directory: nexitas

@@ -9,7 +9,7 @@ Conventions for working on nexitas, the app the modules (collatas, censitas) plu
 - nexitas holds only what every module needs (the owner, projects, the shell). Something one
   module needs stays in that module; it moves here once a second one needs it too.
 - Modules are layers nexitas extends, named in `modules.json` and fetched into `.modules/` by
-  `pnpm modules`, never discovered. Every install switches on the ones it uses. They plug in only
+  `node scripts/modules.ts`, never discovered. Every install switches on the ones it uses. They plug in only
   through the interfaces in `shared/modules.ts`; change those additively, the modules depend on
   them.
 - Import by relative path, here and in the modules: in a layer, `~` and `#shared` resolve against
@@ -34,7 +34,7 @@ Conventions for working on nexitas, the app the modules (collatas, censitas) plu
 ## Checks
 
 `pnpm check`, `pnpm lint`, `pnpm format:check` and `pnpm build` must stay green, with the modules in
-`.modules/` (`pnpm modules`).
+`.modules/` (`node scripts/modules.ts`).
 
 ## Commits and releases
 
