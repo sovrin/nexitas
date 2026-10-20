@@ -1,5 +1,6 @@
 {
   "collatas": "github:sovrin/collatas#master",
   "censitas": "github:sovrin/censitas#master",
-  "veritas": "github:sovrin/veritas#master"
+  "veritas": "github:sovrin/veritas#master",
+  "erratas": "github:sovrin/erratas#main"
 }
