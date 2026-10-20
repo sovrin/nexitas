@@ -4,7 +4,7 @@
 // nexitas' install prepares the app, which needs the modules there.
 //   node scripts/modules.ts
 import { execFileSync } from 'node:child_process'
-import { existsSync, lstatSync, mkdirSync, readFileSync } from 'node:fs'
+import { existsSync, lstatSync, mkdirSync, readFileSync, symlinkSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 
 const root = dirname(import.meta.dirname)
@@ -16,7 +16,7 @@ mkdirSync(resolve(root, '.modules'), { recursive: true })
 
 for (const [id, spec] of Object.entries(manifest)) {
   const match = /^github:([\w.-]+\/[\w.-]+)#(.+)$/.exec(spec)
-  if (!/^[a-z][a-z0-9-]*$/.test(id) || !match)
+  if (!/^[a-z][a-z0-9-]*$/.test(id) || id === 'nexitas' || !match)
     throw new Error(`modules.json: write ${id} as "github:owner/repository#ref".`)
   const [, repository, ref] = match as unknown as [string, string, string]
   const dir = resolve(root, '.modules', id)
@@ -39,4 +39,15 @@ for (const [id, spec] of Object.entries(manifest)) {
     ])
   run('pnpm', ['--dir', dir, 'install', '--frozen-lockfile'])
   console.info(`${id}: ${spec}`)
+}
+
+// A module's tsconfig.json finds nexitas' types at ../nexitas/.nuxt, as in a checkout of the module
+// next to nexitas. Inside .modules/ that path is this link to nexitas' own .nuxt (only .nuxt, so
+// nothing leads back into .modules/). Vite reads each module's tsconfig and stops at a missing one.
+const types = resolve(root, '.modules', 'nexitas', '.nuxt')
+mkdirSync(dirname(types), { recursive: true })
+try {
+  lstatSync(types)
+} catch {
+  symlinkSync('../../.nuxt', types)
 }

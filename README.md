@@ -115,6 +115,8 @@ nexitas holds what every module needs:
 `node scripts/modules.ts` fills the untracked `.modules/` with them, a shallow clone each, with its packages
 installed. The build extends exactly what `modules.json` names, from `.modules/`; a missing one
 stops it. The list is written out, never discovered, so what ships is what the manifest names.
+It also links `.modules/nexitas/.nuxt` to nexitas' `.nuxt`, so a module's `tsconfig.json`, which
+finds nexitas' types at `../nexitas/.nuxt` as in a checkout next to nexitas, works there too.
 To work on a module, make its folder a symlink to your checkout; `node scripts/modules.ts` leaves it as it is:
 
 ```bash
