@@ -1,5 +1,5 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
-useHead({ title: `Set up · ${useRuntimeConfig().public.nexitas.name}` })
+useHead({ title: 'Set up' })
 </script>
 <template><OwnerForm setup /></template>

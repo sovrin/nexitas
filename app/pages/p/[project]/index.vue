@@ -3,7 +3,7 @@ import type { ProjectSummary } from '../../../../shared/contracts'
 import { errorMessage } from '../../../lib/format'
 
 const id = useProject().id.value
-useHead({ title: `${id} · ${useRuntimeConfig().public.nexitas.name}` })
+useHead({ title: id })
 const { data: project, error, refresh } = await useFetch<ProjectSummary>(`/api/projects/${id}`)
 useLive(refresh)
 // Each switched-on module's part of the project, under its name and icon. The panels are global components,
@@ -21,7 +21,6 @@ async function saved() {
 }
 
 const deleteOpen = ref(false)
-const typed = ref('')
 const deleteError = ref('')
 async function remove() {
   deleteError.value = ''
@@ -102,19 +101,13 @@ async function remove() {
       :title="`Delete ${id} and all it holds?`"
       confirm-label="Delete project"
       tone="danger"
-      :disabled="typed !== id"
+      :confirm-word="id"
       @confirm="remove"
     >
       <template #description
         >Removes the project and everything every module keeps for it. Its snippets stop working.
         This cannot be undone.</template
       >
-      <div class="field">
-        <label for="confirm-id"
-          >Type <span class="font-mono">{{ id }}</span> to confirm</label
-        >
-        <input id="confirm-id" v-model="typed" class="input font-mono text-s" autocomplete="off" />
-      </div>
     </ConfirmDialog>
   </div>
 </template>

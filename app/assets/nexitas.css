@@ -61,3 +61,12 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* An alert that appears (saved, deleted, could not load) fades in where it stands. */
+.alert {
+  transition: opacity var(--ae-duration) var(--ae-ease);
+
+  @starting-style {
+    opacity: 0;
+  }
+}

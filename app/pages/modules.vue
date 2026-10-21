@@ -2,7 +2,7 @@
 import { errorMessage } from '../lib/format'
 // What this install does: every module in the build, each switched on or off by the owner. Off,
 // a module runs nothing and answers nothing; its data stays for when it is on again.
-useHead({ title: `Modules · ${useRuntimeConfig().public.nexitas.name}` })
+useHead({ title: 'Modules' })
 const { modules } = useAppConfig().nexitas
 const { switches, refresh } = useModules()
 useLive(refresh)

@@ -11,3 +11,6 @@ coverage/
 .DS_Store
 .idea/
 .modules/
+.claude/launch.json
+.claude/*.lock
+.claude/settings.local.json

@@ -29,6 +29,13 @@ export const setupSchema = ownerCredentialsSchema.extend({
   modules: z.array(z.string().max(64)).max(32).default([]),
 })
 
+/** One problem with what a form sent, by its field: `origins.1`, `fields.title`. invalid() answers
+ *  a 400 with a list of these, and useSubmit() hands them to the form. */
+export interface FieldIssue {
+  path: string
+  message: string
+}
+
 export interface AuthStatus {
   setupRequired: boolean
   owner: { email: string } | null

@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { createSession, sessionOwner } from '../core/auth'
+import { createSession, sessionOwner, tokensMatch } from '../core/auth'
 import { createLimiter } from '../core/limits'
 import { nexitasDatabase, nexitasName, nexitasOrigin, requestSender } from './nexitas'
 
@@ -37,4 +37,15 @@ export function checkAuthRate(event: H3Event, key: string) {
       statusCode: 429,
       statusMessage: 'Too many attempts. Try again in 15 minutes.',
     })
+}
+
+/** A public read API's check (content, translations): the request's bearer token must be
+ *  `expected`, the token kept for what it asks for. Nothing kept (undefined), say for a project
+ *  that does not exist, and a wrong token look the same. */
+export function requireBearer(event: H3Event, expected: string | undefined) {
+  const token = getHeader(event, 'authorization')?.replace(/^Bearer\s+/i, '') ?? ''
+  if (!expected || !tokensMatch(token, expected)) {
+    setHeader(event, 'WWW-Authenticate', 'Bearer')
+    throw createError({ statusCode: 401, statusMessage: 'Invalid token.' })
+  }
 }

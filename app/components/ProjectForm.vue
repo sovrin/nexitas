@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Project } from '../../shared/contracts'
-import { errorMessage } from '../lib/format'
 
 /** Adds a project, or changes one: its name and the origins its pages are served from. What each
  *  module does for it is set on the project's page, in the module's panel. */
@@ -21,16 +20,9 @@ watch(name, (value) => {
 })
 const origins = ref(props.project?.origins.join('\n') ?? '')
 
-const pending = ref(false)
-const error = ref('')
-const issues = ref<{ path: string; message: string }[]>([])
-const fieldError = (path: string) =>
-  issues.value.find((issue) => issue.path === path || issue.path.startsWith(`${path}.`))?.message
+const { pending, error, issues, fieldError, submit } = useSubmit()
 
 async function save() {
-  pending.value = true
-  error.value = ''
-  issues.value = []
   const settings = {
     name: name.value,
     origins: origins.value
@@ -38,19 +30,13 @@ async function save() {
       .map((line) => line.trim())
       .filter(Boolean),
   }
-  try {
-    const saved = await $fetch<Project>(
-      props.project ? `/api/projects/${props.project.id}` : '/api/projects',
-      { method: 'POST', body: props.project ? settings : { ...settings, id: id.value } },
-    )
-    emit('saved', saved)
-  } catch (cause) {
-    const data = (cause as { data?: { data?: { issues?: typeof issues.value } } }).data?.data
-    if (data?.issues?.length) issues.value = data.issues
-    else error.value = errorMessage(cause)
-  } finally {
-    pending.value = false
-  }
+  const saved = await submit(() =>
+    $fetch<Project>(props.project ? `/api/projects/${props.project.id}` : '/api/projects', {
+      method: 'POST',
+      body: props.project ? settings : { ...settings, id: id.value },
+    }),
+  )
+  if (saved) emit('saved', saved)
 }
 </script>
 
@@ -112,20 +98,7 @@ async function save() {
       </div>
     </fieldset>
 
-    <div v-if="issues.length || error" class="alert" data-tone="danger" role="alert">
-      <div>
-        <template v-if="error"><strong>Could not save the project.</strong> {{ error }}</template>
-        <template v-else>
-          <strong>Check these settings.</strong>
-          <ul>
-            <li v-for="issue in issues" :key="issue.path">
-              <span class="font-mono">{{ issue.path }}</span
-              >: {{ issue.message }}
-            </li>
-          </ul>
-        </template>
-      </div>
-    </div>
+    <FormIssues :error="error" :issues="issues" failed="Could not save the project." />
 
     <div class="cluster gap-3 hairline-t pt-5">
       <button

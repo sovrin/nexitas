@@ -2,8 +2,7 @@
 import type { ProjectSummary } from '../../shared/contracts'
 import { errorMessage } from '../lib/format'
 // Every project, with what each module says about it: what changed since last time, at a glance.
-const { name } = useRuntimeConfig().public.nexitas
-useHead({ title: `Projects · ${name}` })
+useHead({ title: 'Projects' })
 const { data, error, refresh } = await useFetch<ProjectSummary[]>('/api/projects', {
   key: 'projects',
 })

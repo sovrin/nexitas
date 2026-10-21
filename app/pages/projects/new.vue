@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Project } from '../../../shared/contracts'
-useHead({ title: `Add a project · ${useRuntimeConfig().public.nexitas.name}` })
+useHead({ title: 'Add a project' })
 const saved = (project: Project) => navigateTo(`/p/${project.id}`)
 </script>
 

@@ -19,6 +19,10 @@ function derivePassword(password: string, salt: string): Promise<Buffer> {
   })
 }
 
+/** A new secret for a module to hand out, such as a read token: `vt_` and 32 random characters.
+ *  The prefix tells whoever finds one in a config which module it opens. */
+export const newToken = (prefix: string) => `${prefix}${randomBytes(24).toString('base64url')}`
+
 export function tokensMatch(supplied: string, expected: string) {
   return timingSafeEqual(
     Buffer.from(hashToken(supplied), 'hex'),
