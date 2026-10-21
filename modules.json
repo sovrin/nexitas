@@ -2,5 +2,6 @@
   "collatas": "github:sovrin/collatas#master",
   "censitas": "github:sovrin/censitas#master",
   "veritas": "github:sovrin/veritas#master",
-  "erratas": "github:sovrin/erratas#master"
+  "erratas": "github:sovrin/erratas#master",
+  "linguitas": "github:sovrin/linguitas#master"
 }
