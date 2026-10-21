@@ -12,6 +12,7 @@ sibling repo (`../<module>`), linked into `.modules/` for the build. AGENTS.md i
    time: they share `.nuxt`). Then in each module, in parallel if you like:
    `pnpm test && pnpm lint && pnpm format:check` and the aequitas check on its Vue files
    (`node ../aequitas/dist/aequitas-check.mjs --css ../nexitas/app/assets/nexitas.css <files>`).
+   `pnpm lint` runs `scripts/drift.ts`: a page that hand-builds what the core's page kit draws.
    Note every failure with its output.
 2. **Audit.** Start one `module-auditor` agent per module, all in one message, each given its
    module's name. Wait for all.

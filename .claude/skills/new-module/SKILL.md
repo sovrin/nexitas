@@ -32,8 +32,9 @@ In `../<name>/`, a Nuxt layer:
 - `app/app.config.ts`: `nexitas.modules` (id, label, description, an icon no other module uses,
   panel) and `nexitas.nav` (`to: '/<section>'`, `module`).
 - `app/components/global/<Name>Project.vue`: its panel on a project's page, `text-s` sized.
-- `app/pages/p/[project]/<section>/index.vue` and below, in the AGENTS.md UI patterns, built from
-  the core's components, composables and `#nexitas/app/lib/format`.
+- `app/pages/p/[project]/<section>/index.vue` and below, built only from the core's page kit
+  (`<AppPage>` and the rest, `useProjectFetch`), its other components and `#nexitas/app/lib/format`;
+  `node scripts/drift.ts` in nexitas must stay quiet. What the kit lacks is added to the kit.
 - `AGENTS.md`: only what is this module's own, and a pointer to ../nexitas/AGENTS.md.
   `README.md`: what it stores and why, and its public API.
 
