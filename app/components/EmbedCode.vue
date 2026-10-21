@@ -6,10 +6,9 @@ defineProps<{ code: string }>()
 </script>
 
 <template>
-  <div class="stack gap-2">
-    <div class="cluster justify-end">
-      <CopyButton :text="code" label="Copy the snippet" />
-    </div>
-    <pre class="snippet font-mono text-xs"><code>{{ code }}</code></pre>
+  <!-- The copy button sits in the snippet's corner; the text keeps clear of it. -->
+  <div class="relative">
+    <pre class="snippet font-mono text-xs pe-7"><code>{{ code }}</code></pre>
+    <CopyButton class="absolute top-0 end-0" :text="code" label="Copy the snippet" />
   </div>
 </template>

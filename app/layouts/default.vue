@@ -120,9 +120,7 @@ async function logout() {
       </span>
     </header>
     <main id="main" class="container py-5" tabindex="-1">
-      <div v-if="error" class="alert mb-5" data-tone="danger" role="alert">
-        <div><strong>Could not sign out.</strong> {{ error }}</div>
-      </div>
+      <AppAlert v-if="error" class="mb-5" title="Could not sign out.">{{ error }}</AppAlert>
       <slot />
     </main>
     <footer class="statusbar">

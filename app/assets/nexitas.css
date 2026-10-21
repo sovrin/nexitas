@@ -70,3 +70,23 @@
     opacity: 0;
   }
 }
+
+/* A search's hint (SearchBox) shows under its field while one types there, over what follows,
+   so it neither widens the field nor pushes the page down. A screen reader hears it either way,
+   through aria-describedby. */
+.search-box {
+  position: relative;
+}
+.field-hint {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline: 0;
+  z-index: 1;
+  display: none;
+  padding: var(--ae-space-2);
+  background: var(--ae-surface);
+  border: 1px solid var(--ae-border);
+}
+.search-box:focus-within .field-hint {
+  display: block;
+}

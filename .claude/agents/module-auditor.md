@@ -17,7 +17,9 @@ Find, with file:line:
 1. Copies of something the core gives (a formatter, a CORS guard, a bearer check, a token minter,
    a field-error 400, a copy button, a typed confirm, a form's pending/issues handling), and any
    `Intl`, `toLocaleString` or hand-made plural.
-2. Breaks with the UI patterns in AGENTS.md: page header, first page vs breadcrumbs, useHead
+2. Markup the core's page kit draws, built by hand (`node scripts/drift.ts` in nexitas lists
+   them), and anything drawn in a way two modules now share that the kit lacks. Then breaks with
+   the UI patterns in AGENTS.md: page header, first page vs breadcrumbs, useHead
    titles, state as dot + word (no `.badge`, no toned text, never colour alone), alerts, empty
    states, tables, forms (useSubmit, FormIssues, data-error, data-size="s", the submit row),
    delete flows, `style=""`, more than one primary.
@@ -30,7 +32,7 @@ Find, with file:line:
 5. Leftovers: dead code, unused dependencies, stale comments and docs (standalone-app env names,
    its own sign-in), a module AGENTS.md that repeats or contradicts the core's.
 
-Also run, from the module: `pnpm test`, `pnpm lint`, `pnpm format:check`, and
+Also run `node ../nexitas/scripts/drift.ts` and, from the module: `pnpm test`, `pnpm lint`, `pnpm format:check`, and
 `node ../aequitas/dist/aequitas-check.mjs --css ../nexitas/app/assets/nexitas.css $(git ls-files 'app/**/*.vue')`.
 
 Report findings ranked by what hurts most (a privacy or scoping break first, a wording drift

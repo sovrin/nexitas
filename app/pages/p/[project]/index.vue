@@ -3,7 +3,6 @@ import type { ProjectSummary } from '../../../../shared/contracts'
 import { errorMessage } from '../../../lib/format'
 
 const id = useProject().id.value
-useHead({ title: id })
 const { data: project, error, refresh } = await useFetch<ProjectSummary>(`/api/projects/${id}`)
 useLive(refresh)
 // Each switched-on module's part of the project, under its name and icon. The panels are global components,
@@ -20,7 +19,6 @@ async function saved() {
   savedNotice.value = true
 }
 
-const deleteOpen = ref(false)
 const deleteError = ref('')
 async function remove() {
   deleteError.value = ''
@@ -34,80 +32,49 @@ async function remove() {
 </script>
 
 <template>
-  <div class="stack gap-5">
-    <nav aria-label="Breadcrumb">
-      <ol class="breadcrumb">
-        <li><NuxtLink to="/">Projects</NuxtLink></li>
-        <li aria-current="page" class="font-mono">{{ id }}</li>
-      </ol>
-    </nav>
-
-    <div v-if="error" class="alert" data-tone="danger" role="alert">
-      <div><strong>Could not load this project.</strong> {{ errorMessage(error) }}</div>
-    </div>
-    <template v-else-if="project">
-      <div class="page-header">
-        <h1 class="text-xl weight-600">{{ project.name }}</h1>
-        <button
-          type="button"
-          class="btn"
-          data-size="s"
-          data-variant="ghost"
-          data-tone="danger"
-          @click="deleteOpen = true"
-        >
-          Delete project
-        </button>
-      </div>
-      <div v-if="deleteError" class="alert" data-tone="danger" role="alert">
-        <div><strong>Could not delete the project.</strong> {{ deleteError }}</div>
-      </div>
-
-      <!-- What the modules do for it takes the room; its own settings sit beside them. -->
-      <div class="with-aside">
-        <div class="grid">
-          <section
-            v-for="panel in panels"
-            :key="panel.id"
-            class="stack gap-3"
-            :aria-labelledby="`${panel.id}-title`"
-          >
-            <h2 :id="`${panel.id}-title`" class="text-s weight-600 hairline-b pb-2">
-              <ModuleLabel :module="panel.id" />
-            </h2>
-            <component :is="panel.component" :project="project" />
-          </section>
-          <p v-if="!panels.length" class="text-muted">
-            No module is on. Switch one on under Modules to use it for this project.
-          </p>
-        </div>
-
-        <aside class="stack gap-3" aria-labelledby="settings-title">
-          <h2 id="settings-title" class="text-s weight-600 hairline-b pb-2">Settings</h2>
-          <div v-if="savedNotice" class="alert" data-tone="success" role="status">
-            <div><strong>Saved.</strong> Every module uses the new settings from now on.</div>
-          </div>
-          <ProjectForm
-            :key="JSON.stringify([project.name, project.origins])"
-            :project="project"
-            @saved="saved"
-          />
-        </aside>
-      </div>
-    </template>
-
-    <ConfirmDialog
-      v-model:open="deleteOpen"
-      :title="`Delete ${id} and all it holds?`"
-      confirm-label="Delete project"
-      tone="danger"
-      :confirm-word="id"
-      @confirm="remove"
-    >
-      <template #description
-        >Removes the project and everything every module keeps for it. Its snippets stop working.
-        This cannot be undone.</template
+  <AppPage
+    :title="project?.name ?? id"
+    :head="id"
+    :trail="[{ label: 'Projects', to: '/' }]"
+    failed="Could not load this project."
+    :error="error"
+  >
+    <template v-if="project" #actions>
+      <DangerAction
+        label="Delete project"
+        :title="`Delete ${id} and all it holds?`"
+        :confirm-word="id"
+        @confirm="remove"
       >
-    </ConfirmDialog>
-  </div>
+        Removes the project and everything every module keeps for it. Its snippets stop working.
+        This cannot be undone.
+      </DangerAction>
+    </template>
+    <AppAlert v-if="deleteError" title="Could not delete the project.">{{ deleteError }}</AppAlert>
+    <!-- What the modules do for it takes the room; its own settings sit beside them. -->
+    <!-- One under the other: side by side, a short panel left a hole beside a tall one. -->
+    <div v-if="project" class="stack gap-6">
+      <AppSection v-for="panel in panels" :key="panel.id">
+        <template #title><ModuleLabel :module="panel.id" /></template>
+        <!-- Panels are set small here, so none sizes its own text. -->
+        <div class="text-s"><component :is="panel.component" :project="project" /></div>
+      </AppSection>
+      <EmptyState v-if="!panels.length">
+        No module is on. Switch one on under Modules to use it for this project.
+      </EmptyState>
+    </div>
+
+    <template v-if="project" #aside>
+      <AppSection title="Settings">
+        <AppAlert v-if="savedNotice" tone="success" title="Saved."
+          >Every module uses the new settings from now on.</AppAlert
+        >
+        <ProjectForm
+          :key="JSON.stringify([project.name, project.origins])"
+          :project="project"
+          @saved="saved"
+        />
+      </AppSection>
+    </template>
+  </AppPage>
 </template>

@@ -42,8 +42,8 @@ Use these; don't write a module's own. Something two modules write alike belongs
   `transaction(db, fn)` (`core/database`); `projectAllows`, `getProject` (`core/projects`);
   `createLimiter`, `senderNetwork` (`core/limits`).
 - Pages: `useProject()`, `useLive(refresh)`, `useModules()`, `useSubmit()` (auto-imported);
-  `<ConfirmDialog>` (`confirm-word` for what takes much with it), `<FormIssues>`, `<EmbedCode>`,
-  `<CopyButton>`, `<ModuleLabel>`, `<StatusItems>`; and every count, day, time and age through
+  `useProjectFetch()`, the page kit (see UI), `<FormIssues>`, `<EmbedCode>`, `<CopyButton>`,
+  `<ModuleLabel>`, `<StatusItems>`; and every count, day, time and age through
   `#nexitas/app/lib/format` (`plural`, `formatCount`, `formatAge`, `formatTime`, `formatDay`,
   `formatDelta`, `errorMessage`), never a module's own `Intl` or `toLocaleString`.
 - A module's server parts: a Nitro plugin that calls `registerModule(...)`, the module in
@@ -58,22 +58,28 @@ Use these; don't write a module's own. Something two modules write alike belongs
 - The look: aequitas' own defaults (density and type included), the page in aequitas'
   `.container`: a navbar on top, the page, a status bar at the bottom. No cards, panels or
   sidebar. Colour only reports state, always next to a word.
-- One pattern per thing, in every module:
-  - Page: `.page-header` with an `h1.text-xl.weight-600` (a subtitle beside it in a
-    `div.stack.gap-1.min-w-0`, as `p.text-s.text-muted`) and the actions in a `.cluster`, at most
-    one primary. A module's first page is titled by its section's label ("Inbox", "Content"),
-    without a breadcrumb; pages below it have one that starts there. `useHead` titles read
-    `<page> · <project id>`; app.vue adds the app's name.
-  - State is a `.dot` with `data-tone` before its word: no `.badge` or toned text for it, and never
-    the colour alone.
-  - Loading failed: `.alert[data-tone=danger][role=alert]` with `<strong>Could not …</strong>` and
-    the `errorMessage`; a list adds a "Try again" button. Empty: `p.text-muted` (`text-s` inside a
-    project's panel).
-  - Tables: `div.table-scroll > table.table[data-size=s]`; ids, keys, origins, values mono.
+- Pages are built from the core's page kit (app/components), never from the markup it draws, so
+  every module looks alike and changes with the core. `node scripts/drift.ts` (in `pnpm lint`)
+  fails on a hand-built header, breadcrumb, alert, table frame, dot, aside, section heading, `h1`,
+  `style=""` or a project fetch outside `useProjectFetch`. What a module needs drawn that the kit
+  lacks is added to the kit, not to the module.
+  - `<AppPage title failed :error :retry :trail>` frames every page: breadcrumb (from the module's
+    section; none on its first page), heading, `subtitle` and `actions` slots, the load error
+    with "Try again", an `aside` slot for settings beside it, and the tab's title
+    (`<page> · <project id>`, then the app's name).
+  - `useProjectFetch('/feedback')` reads the project's API and keeps the page live (`live: false`
+    for a form a refresh would reset).
+  - `<AppSection title>` for a named part, `<DataTable>` for a table (ids, keys, origins, values
+    mono), `<StateDot tone>word</StateDot>` for a state, `<AppAlert title tone>` for a message,
+    `<EmptyState>` for nothing to show, `<PagerNav>` and `<SearchBox>` for long lists.
   - Forms: `useSubmit()`, inputs `data-size="s"`, a field's error as `<span data-error>`,
-    `<FormIssues>` above a `div.cluster.gap-3.hairline-t.pt-5` with the `btn end` primary.
-  - Delete: a ghost danger button, then `<ConfirmDialog tone="danger">`.
-  - No `style=""`; a module's own stylesheet only for what it alone draws (a chart).
+    `<FormIssues>` above a `div.cluster.gap-3.hairline-t.pt-5` with the `btn end` primary. At
+    most one primary per view.
+  - `<DangerAction>` for what cannot be undone (`confirm-word` when it takes much with it).
+  - A panel on a project's page (set small by the page, never by itself): what the module says
+    about it, its snippet, or `<PanelStart>` while it does nothing for it.
+  - `<AsideLayout>` for a component that needs a column beside it (a form's live preview).
+  - A module's own stylesheet only for what it alone draws (a chart).
   - A static page beside a `[param]` page is named with a leading underscore: `_new.vue`.
 - Lint changed Vue files: `node ../aequitas/dist/aequitas-check.mjs --css app/assets/nexitas.css <files>`.
 

@@ -12,6 +12,11 @@ Read nexitas/AGENTS.md's UI section, nexitas/app/assets/nexitas.css, the core's 
 ../aequitas (dist/ for classes and tokens); a class that is neither aequitas' nor in nexitas.css or
 the module's own stylesheet is a finding.
 
+Run `node scripts/drift.ts` in nexitas first: a page that hand-builds what the page kit
+(app/components: AppPage, AppAlert, AppSection, StateDot, DataTable, EmptyState, DangerAction,
+PagerNav, SearchBox, PanelStart) draws is the first finding, and something a module draws that
+the kit should own is a proposal for the core.
+
 For each file, check:
 
 - Built from aequitas only: semantic HTML, its classes, `data-*` variants and ARIA state. No
