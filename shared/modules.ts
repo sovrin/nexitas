@@ -1,6 +1,9 @@
 // What a module gives the core. A module is a Nuxt layer that extends nexitas: its pages, API
 // routes and components join the app as usual, and these interfaces are how it plugs into what
-// the core owns. The server half is registered from a Nitro plugin (registerModule); the page
+// the core owns. A project holds everything: a module's pages live in app/pages/p/[project]/ and
+// read it with useProject(); its API lives in server/api/p/[project]/ and reads it with
+// requestProject(event) (#nexitas/server/utils/projects), which the core has found, or answered
+// 404 for, before the handler runs. The server half is registered from a Nitro plugin (registerModule); the page
 // half goes into app.config under `nexitas`.
 import type { H3Event } from 'h3'
 import type { DatabaseSync } from 'node:sqlite'
@@ -14,18 +17,17 @@ export interface NexitasModule {
   migrations?: readonly string[]
   /** Routes outside /api that anyone may call, such as a tracker's beacon or a form's post. */
   publicRoutes?: readonly PublicRoute[]
-  /** Every path prefix the module serves: its pages, its /api routes and its public ones. While
-   *  the owner has the module switched off, all of them answer 404. */
+  /** Every path prefix the module serves: its pages, its /api routes and its public ones. A
+   *  project's, /p/<id>/feedback and /api/p/<id>/feedback, count as /feedback and /api/feedback. While the owner has the module switched
+   *  off, all of them answer 404. */
   paths?: readonly string[]
   /** The largest body, in bytes, a write to its own paths accepts, such as a long entry. 64 kB
    *  when left out. Public routes set theirs on the route. */
   maxBody?: number
   /** Runs once at start and every hour while the module is on, such as a cleanup. */
   hourly?: (db: DatabaseSync) => void
-  /** What this module adds to the status line under every page. */
-  status?: (db: DatabaseSync) => readonly StatusItem[]
-  /** What this module says about one project, on the overview and the project's page. Nothing
-   *  for a project it is not used for. */
+  /** What this module says about one project: on the overview, the project's page, and the
+   *  status line while the project is open. Nothing for a project it is not used for. */
   projectStatus?: (db: DatabaseSync, projectId: string) => readonly StatusItem[]
   /** Removes what this module keeps for a project. Runs in the core's transaction, before the
    *  project itself goes. */
@@ -63,6 +65,9 @@ export interface ModuleStatus {
 
 /** A section in the main nav. */
 export interface NavEntry {
+  /** Where it goes. A module's section is a project's: `/feedback` goes to /p/<id>/feedback, for
+   *  the project picked beside the sections, and its pages live in the module's
+   *  app/pages/p/[project]/feedback/. */
   to: string
   label: string
   /** Further path prefixes that belong to the section, besides `to` itself. */

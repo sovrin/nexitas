@@ -53,7 +53,6 @@ export default defineNuxtConfig({
         lang: 'en',
         'data-ae-manual': '',
         'data-accent': 'graphite',
-        'data-density': 'compact',
       },
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     },

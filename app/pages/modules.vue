@@ -26,42 +26,57 @@ async function toggle(id: string, enabled: boolean) {
 
 <template>
   <div class="stack gap-5">
-    <div class="stack gap-2">
-      <h1 class="text-l weight-600">Modules</h1>
-      <p class="text-muted">Only what is on runs. Switching a module off keeps its data.</p>
+    <div class="page-header">
+      <div>
+        <h1 class="text-xl weight-600">Modules</h1>
+        <p class="text-s text-muted">
+          Only what is on runs. Switching a module off keeps its data.
+        </p>
+      </div>
     </div>
     <div v-if="error" class="alert" data-tone="danger" role="alert">
       <div><strong>Could not switch the module.</strong> {{ error }}</div>
     </div>
-    <ul v-if="modules.length" data-variant="plain" aria-label="Modules">
-      <li v-for="module in modules" :key="module.id" class="py-3 hairline-b">
-        <div class="cluster gap-3 flex-nowrap items-start">
-          <div class="stack gap-1 flex-1 min-w-0">
-            <span class="cluster gap-2">
-              <span class="weight-600"><ModuleLabel :module="module.id" /></span>
-              <span class="font-mono text-xs text-muted">{{ module.id }}</span>
-            </span>
-            <span class="text-s text-muted">{{ module.description }}</span>
-            <span class="text-s text-muted">{{
-              state(module.id)?.enabled
-                ? 'On'
-                : state(module.id)?.hasData
-                  ? 'Off · its data is kept'
-                  : 'Off'
-            }}</span>
-          </div>
-          <input
-            type="checkbox"
-            role="switch"
-            :checked="state(module.id)?.enabled"
-            :disabled="pending === module.id"
-            :aria-busy="pending === module.id || undefined"
-            :aria-label="module.label"
-            @change="toggle(module.id, ($event.target as HTMLInputElement).checked)"
-          />
-        </div>
-      </li>
-    </ul>
+    <div v-if="modules.length" class="table-scroll">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Module</th>
+            <th scope="col">Id</th>
+            <th scope="col">What it does</th>
+            <th scope="col">State</th>
+            <th scope="col"><span class="sr-only">On</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="module in modules" :key="module.id">
+            <td class="weight-600"><ModuleLabel :module="module.id" /></td>
+            <td class="font-mono text-s text-muted">{{ module.id }}</td>
+            <td class="text-s text-muted">{{ module.description }}</td>
+            <td class="text-s">
+              {{
+                state(module.id)?.enabled
+                  ? 'On'
+                  : state(module.id)?.hasData
+                    ? 'Off · its data is kept'
+                    : 'Off'
+              }}
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                role="switch"
+                :checked="state(module.id)?.enabled"
+                :disabled="pending === module.id"
+                :aria-busy="pending === module.id || undefined"
+                :aria-label="module.label"
+                @change="toggle(module.id, ($event.target as HTMLInputElement).checked)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <p v-else class="text-muted">This build has no modules.</p>
   </div>
 </template>

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { ModuleStatus } from '../../shared/modules'
-// The heartbeat on every signed-in page: what each module reports, in one line, each part behind
-// its module's icon.
+// The heartbeat on every signed-in page: what each module reports about the project, in one line,
+// each part behind its module's icon.
+const props = defineProps<{ project: string }>()
 const { data, refresh } = useFetch<ModuleStatus[]>('/api/status', {
   key: 'status-line',
+  query: { project: toRef(props, 'project') },
   server: false,
   lazy: true,
 })

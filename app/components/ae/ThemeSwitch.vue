@@ -2,7 +2,7 @@
 import { setTheme } from '@aequitas/aequitas.js'
 
 /** <ThemeSwitch v-model="theme" />
- *  Three small text buttons; the current one is pressed. Pass the server-known mode (the `ae-theme`
+ *  aequitas' segmented choice of three; the current one is checked. Pass the server-known mode (the `ae-theme`
  *  cookie) so it paints in its final state. Changing it calls setTheme(), which updates
  *  <html data-theme>, localStorage and the cookie. */
 type Mode = 'light' | 'dark' | 'auto'
@@ -22,17 +22,14 @@ function change(next: Mode) {
 </script>
 
 <template>
-  <span class="cluster gap-3 text-s" role="group" aria-label="Theme">
-    <button
-      v-for="option in OPTIONS"
-      :key="option.value"
-      type="button"
-      class="link"
-      :data-quiet="mode === option.value ? undefined : ''"
-      :aria-pressed="mode === option.value"
-      @click="change(option.value)"
+  <div class="segmented" role="radiogroup" aria-label="Theme" data-size="s">
+    <label v-for="option in OPTIONS" :key="option.value"
+      ><input
+        type="radio"
+        name="theme"
+        :checked="mode === option.value"
+        @change="change(option.value)"
+      /><span>{{ option.label }}</span></label
     >
-      {{ option.label }}
-    </button>
-  </span>
+  </div>
 </template>

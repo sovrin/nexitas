@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import type { PublicRoute } from '../../shared/modules'
 import { requireOwner } from '../utils/auth'
 import { enabledModuleIds } from '../core/database'
+import { getProject } from '../core/projects'
 import { nexitasDatabase, nexitasModules, nexitasName, nexitasOrigin } from '../utils/nexitas'
 
 // Two kinds of API live here. /api/* is the owner's: their session, and for writes the app's exact
@@ -67,14 +68,24 @@ export default defineEventHandler((event) => {
       throw createError({ statusCode: 415, statusMessage: 'Send application/json.' })
   }
   if (!OPEN_API.has(path)) requireOwner(event)
+  // A project's API: /api/p/<id>/… is about that project, which must exist. Found once here, so
+  // no module looks it up, or takes it from a query, on its own.
+  const scoped = /^\/api\/p\/([^/]+)\//.exec(path)
+  if (scoped) {
+    const project = getProject(nexitasDatabase(), scoped[1]!)
+    if (!project) throw createError({ statusCode: 404, statusMessage: 'There is no such project.' })
+    event.context.project = project
+  }
 })
 
 /** The module a path belongs to, by its paths or its public routes; the database is only asked
- *  when one does. */
+ *  when one does. A project's paths are the module's as its own: /p/<id>/feedback as /feedback,
+ *  /api/p/<id>/feedback as /api/feedback. */
 function findModule(path: string) {
+  const own = path.replace(/^(\/api)?\/p\/[^/]+(?=\/)/, '$1')
   return nexitasModules().find(
     (module) =>
-      module.paths?.some((prefix) => path === prefix || path.startsWith(`${prefix}/`)) ||
+      module.paths?.some((prefix) => own === prefix || own.startsWith(`${prefix}/`)) ||
       module.publicRoutes?.some((route) =>
         typeof route.path === 'string' ? route.path === path : route.path.test(path),
       ),

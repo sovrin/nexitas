@@ -57,61 +57,59 @@ async function save() {
 <template>
   <form class="stack gap-5" @submit.prevent="save">
     <fieldset :disabled="pending" class="stack gap-5">
-      <dl class="properties">
-        <dt><label for="name">Name</label></dt>
-        <dd class="field items-stretch">
-          <input
-            id="name"
-            v-model="name"
-            class="input"
-            data-size="s"
-            required
-            maxlength="60"
-            placeholder="sonotas"
-            autocomplete="off"
-            :aria-invalid="!!fieldError('name') || undefined"
-          />
-          <span v-if="fieldError('name')" data-error>{{ fieldError('name') }}</span>
-        </dd>
-        <dt><label for="id">Id</label></dt>
-        <dd class="field items-stretch">
-          <input
-            id="id"
-            v-model="id"
-            class="input font-mono text-s"
-            data-size="s"
-            required
-            maxlength="40"
-            autocomplete="off"
-            spellcheck="false"
-            :readonly="!!project"
-            :aria-invalid="!!fieldError('id') || undefined"
-            aria-describedby="id-help"
-            @input="idTouched = true"
-          />
-          <small id="id-help">{{
-            project
-              ? 'Fixed: the snippets in its pages refer to it.'
-              : 'Used by the snippets in its pages. It cannot change later.'
-          }}</small>
-          <span v-if="fieldError('id')" data-error>{{ fieldError('id') }}</span>
-        </dd>
-        <dt><label for="origins">Sites</label></dt>
-        <dd class="field items-stretch">
-          <textarea
-            id="origins"
-            v-model="origins"
-            class="input font-mono text-s"
-            required
-            spellcheck="false"
-            placeholder="https://sonotas.example.com"
-            :aria-invalid="!!fieldError('origins') || undefined"
-            aria-describedby="origins-help"
-          ></textarea>
-          <small id="origins-help">One per line. Only pages from these may call its modules.</small>
-          <span v-if="fieldError('origins')" data-error>{{ fieldError('origins') }}</span>
-        </dd>
-      </dl>
+      <div class="field">
+        <label for="name">Name</label>
+        <input
+          id="name"
+          v-model="name"
+          class="input"
+          data-size="s"
+          required
+          maxlength="60"
+          placeholder="sonotas"
+          autocomplete="off"
+          :aria-invalid="!!fieldError('name') || undefined"
+        />
+        <span v-if="fieldError('name')" data-error>{{ fieldError('name') }}</span>
+      </div>
+      <div class="field">
+        <label for="id">Id</label>
+        <input
+          id="id"
+          v-model="id"
+          class="input font-mono text-s"
+          data-size="s"
+          required
+          maxlength="40"
+          autocomplete="off"
+          spellcheck="false"
+          :readonly="!!project"
+          :aria-invalid="!!fieldError('id') || undefined"
+          aria-describedby="id-help"
+          @input="idTouched = true"
+        />
+        <small id="id-help">{{
+          project
+            ? 'Fixed: the snippets in its pages refer to it.'
+            : 'Used by the snippets in its pages. It cannot change later.'
+        }}</small>
+        <span v-if="fieldError('id')" data-error>{{ fieldError('id') }}</span>
+      </div>
+      <div class="field">
+        <label for="origins">Sites</label>
+        <textarea
+          id="origins"
+          v-model="origins"
+          class="input font-mono text-s"
+          required
+          spellcheck="false"
+          placeholder="https://sonotas.example.com"
+          :aria-invalid="!!fieldError('origins') || undefined"
+          aria-describedby="origins-help"
+        ></textarea>
+        <small id="origins-help">One per line. Only pages from these may call its modules.</small>
+        <span v-if="fieldError('origins')" data-error>{{ fieldError('origins') }}</span>
+      </div>
     </fieldset>
 
     <div v-if="issues.length || error" class="alert" data-tone="danger" role="alert">

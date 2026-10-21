@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import type { Project } from '../../../shared/contracts'
 useHead({ title: `Add a project · ${useRuntimeConfig().public.nexitas.name}` })
-const saved = (project: Project) => navigateTo(`/projects/${project.id}`)
+const saved = (project: Project) => navigateTo(`/p/${project.id}`)
 </script>
 
 <template>
-  <div>
-    <nav aria-label="Breadcrumb" class="mb-5">
+  <div class="stack gap-5">
+    <nav aria-label="Breadcrumb">
       <ol class="breadcrumb">
         <li><NuxtLink to="/">Projects</NuxtLink></li>
         <li aria-current="page">Add</li>
       </ol>
     </nav>
-    <h1 class="text-l weight-600 mb-5">Add a project</h1>
-    <ProjectForm @saved="saved" />
+    <div class="page-header">
+      <h1 class="text-xl weight-600">Add a project</h1>
+    </div>
+    <!-- A form reads best at a line's length, however wide the window. -->
+    <div class="measure">
+      <ProjectForm @saved="saved" />
+    </div>
   </div>
 </template>

@@ -12,6 +12,11 @@ Conventions for working on nexitas, the app the modules (collatas, censitas) plu
   `node scripts/modules.ts`, never discovered. Every install switches on the ones it uses. They plug in only
   through the interfaces in `shared/modules.ts`; change those additively, the modules depend on
   them.
+- A project holds everything. A module's pages are in `app/pages/p/[project]/` and read it with
+  `useProject()`; its API is in `server/api/p/[project]/` and reads it with `requestProject(event)`,
+  which the core resolves (or 404s) once. Never a `?project=` query, never another id standing in
+  for the project; every query, one item's included, is scoped by it. Nothing spans projects but
+  the Projects page.
 - Import by relative path, here and in the modules: in a layer, `~` and `#shared` resolve against
   the app. Modules reach the core through `#nexitas/...`.
 - Data access is plain SQL in `server/core/*.ts`: functions that take the database first, no ORM.
@@ -27,8 +32,9 @@ Conventions for working on nexitas, the app the modules (collatas, censitas) plu
 
 - Built only from aequitas: semantic HTML plus its classes, `data-*` variants and ARIA state.
   `app/assets/nexitas.css` holds only what aequitas lacks and every app shares, with tokens only.
-- The look: one centred small column hanging from the top, compact density, square corners, no
-  cards, panels or sidebar. Colour only reports state, always next to a word.
+- The look: aequitas' own defaults (density and type included), the page in aequitas'
+  `.container`: a navbar on top, the page, a status bar at the bottom. No cards, panels or
+  sidebar. Colour only reports state, always next to a word.
 - Lint changed Vue files: `node ../aequitas/dist/aequitas-check.mjs --css app/assets/nexitas.css <files>`.
 
 ## Checks

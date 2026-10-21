@@ -4,50 +4,69 @@ import { errorMessage } from '../lib/format'
 // Every project, with what each module says about it: what changed since last time, at a glance.
 const { name } = useRuntimeConfig().public.nexitas
 useHead({ title: `Projects · ${name}` })
-const { data, error, refresh } = await useFetch<ProjectSummary[]>('/api/projects')
+const { data, error, refresh } = await useFetch<ProjectSummary[]>('/api/projects', {
+  key: 'projects',
+})
 useLive(refresh)
+// One column per module that is on, so a module's line always sits under its own name.
+const { modules } = useAppConfig().nexitas
+const { enabled } = useModules()
+const columns = computed(() => modules.filter((module) => enabled.value.has(module.id)))
+const items = (project: ProjectSummary, module: string) =>
+  project.status.find((status) => status.module === module)?.items ?? []
+const tone = (project: ProjectSummary) =>
+  project.status.flatMap((status) => status.items).find((item) => item.tone)?.tone
 </script>
 
 <template>
   <div class="stack gap-5">
-    <h1 class="sr-only">Projects</h1>
+    <div class="page-header">
+      <h1 class="text-xl weight-600">Projects</h1>
+      <NuxtLink to="/projects/new" class="btn" data-size="s" data-variant="primary"
+        >Add a project</NuxtLink
+      >
+    </div>
     <div v-if="error" class="alert" data-tone="danger" role="alert">
       <div><strong>Could not load your projects.</strong> {{ errorMessage(error) }}</div>
       <button type="button" class="btn" data-size="s" @click="refresh()">Try again</button>
     </div>
     <template v-else-if="data">
-      <ul v-if="data.length" data-variant="plain" aria-label="Projects">
-        <li v-for="project in data" :key="project.id" class="py-3 hairline-b">
-          <div class="cluster gap-3 flex-nowrap">
-            <span
-              class="dot"
-              :data-tone="
-                project.status.flatMap((status) => status.items).find((item) => item.tone)?.tone
-              "
-              aria-hidden="true"
-            ></span>
-            <NuxtLink
-              :to="`/projects/${project.id}`"
-              class="link weight-600 flex-1 min-w-0 break-words"
-              data-quiet
-              >{{ project.name }}</NuxtLink
-            >
-            <span class="font-mono text-xs text-muted">{{ project.id }}</span>
-          </div>
-          <!-- Each module's line under its own name, so one module never reads as another's. -->
-          <dl v-if="project.status.length" class="properties ps-4 pt-1 text-s">
-            <template v-for="status in project.status" :key="status.module">
-              <dt class="text-muted"><ModuleLabel :module="status.module" /></dt>
-              <dd><StatusItems :items="status.items" /></dd>
-            </template>
-          </dl>
-          <p v-else class="ps-4 text-s text-muted">no module in use yet</p>
-        </li>
-      </ul>
+      <div v-if="data.length" class="table-scroll">
+        <table class="table" data-size="s">
+          <thead>
+            <tr>
+              <th scope="col">Project</th>
+              <th scope="col">Id</th>
+              <th v-for="module in columns" :key="module.id" scope="col">
+                <ModuleLabel :module="module.id" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="project in data" :key="project.id">
+              <td>
+                <span class="cluster gap-3 flex-nowrap">
+                  <span class="dot" :data-tone="tone(project)" aria-hidden="true"></span>
+                  <NuxtLink :to="`/p/${project.id}`" class="link weight-600">{{
+                    project.name
+                  }}</NuxtLink>
+                </span>
+              </td>
+              <td class="font-mono text-s text-muted">{{ project.id }}</td>
+              <td v-for="module in columns" :key="module.id" class="text-s">
+                <StatusItems
+                  v-if="items(project, module.id).length"
+                  :items="items(project, module.id)"
+                />
+                <span v-else class="text-muted">–</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <p v-else class="text-muted">
         No projects yet. Add one, then choose on its page what each module does for it.
       </p>
-      <p><NuxtLink to="/projects/new" class="link">Add a project</NuxtLink></p>
     </template>
   </div>
 </template>

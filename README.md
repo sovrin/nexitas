@@ -145,8 +145,9 @@ export default defineNitroPlugin(() =>
     ],
     publicRoutes: [{ path: '/v1/e', maxBody: 4 * 1024, json: true }],
     paths: ['/sites', '/api/sites'],
-    status: (db) => [{ text: `${countToday(db)} events today`, to: '/sites', tone: 'success' }],
-    projectStatus: (db, projectId) => [{ text: `${countToday(db, projectId)} today` }],
+    projectStatus: (db, projectId) => [
+      { text: `${countToday(db, projectId)} today`, to: `/p/${projectId}/sites` },
+    ],
     deleteProject: (db, projectId) => deleteSiteOf(db, projectId),
   }),
 )
@@ -157,12 +158,13 @@ export default defineNitroPlugin(() =>
 - **`publicRoutes`**: routes outside `/api` that anyone may call, each with its body limit and an
   optional `guard` for origins and CORS (`projectAllows`).
 - **`paths`**: every prefix it serves, pages and `/api` alike, so they answer 404 while it is off.
-  Its static files (a script in `public/`) still load, but find nothing to call.
+  A page in a project, `/p/<id>/sites`, counts as `/sites`. Its static files (a script in
+  `public/`) still load, but find nothing to call.
 - **`hourly`**: work such as a cleanup, run at start and every hour while it is on. A module keeps
   no timers of its own.
-- **`status`**: what the module adds to the status line under every page.
-- **`projectStatus`** and **`deleteProject`**: its line about one project, and removing what it
-  keeps for one, in the core's transaction.
+- **`projectStatus`** and **`deleteProject`**: its line about one project, on the overview, the
+  project's page and the status line while the project is open; and removing what it keeps for
+  one, in the core's transaction.
 
 The page half goes into `app/app.config.ts`:
 
@@ -186,7 +188,23 @@ export default defineAppConfig({
 The entry in `modules` is how the shell tells the modules apart: every line a module reports, on
 the overview, the status line and the project page, stands under its label and icon, and its nav
 entry carries the icon. The description stands beside its switch at setup and under Modules.
-Give each module an aequitas icon no other module uses. The panel is a component in the module's
+Give each module an aequitas icon no other module uses.
+
+A project holds everything, and a module's part of it lives under it:
+
+- **Pages** in `app/pages/p/[project]/sites/`. The navbar picks the project, and `to: '/sites'`
+  goes to `/p/<id>/sites`. A page reads the project with `useProject()`, never from the address.
+  The project's own page is `/p/<id>`.
+- **API** in `server/api/p/[project]/sites/`, called as `/api/p/<id>/sites`. A handler reads the
+  project with `requestProject(event)` from `#nexitas/server/utils/projects`; the core has found
+  it, or answered 404, before the handler runs. Nothing takes the project from a query.
+- **Data**: the module's functions take the project id and scope every query by it, one item's
+  included, so another project's item is not found.
+- **Links** point into the project, the `to` of its status items included.
+
+`paths` stay the module's own (`/sites`, `/api/sites`): the project's count as them.
+
+The panel is a component in the module's
 `app/components/global/`, given the project as `project`; the shell puts the label above it.
 Server code reaches the core through `#nexitas/server/...`, the pages through the auto-imported
 composables.

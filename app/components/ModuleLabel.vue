@@ -16,13 +16,12 @@ const entry = computed(
       v-if="iconOnly"
       class="icon"
       :data-icon="entry.icon"
-      data-size="s"
       role="img"
       :aria-label="entry.label"
       :data-tip="entry.label"
     ></i>
     <template v-else>
-      <i class="icon" :data-icon="entry.icon" data-size="s" aria-hidden="true"></i>
+      <i class="icon" :data-icon="entry.icon" aria-hidden="true"></i>
       {{ entry.label }}
     </template>
   </span>
