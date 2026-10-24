@@ -170,6 +170,15 @@
     & > .icon {
       font-size: var(--ae-text-l);
     }
+
+    /* Icon only, like the rail's links (data-labels="hidden"); the name stays for screen readers. */
+    & > span {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
   }
 }
 
@@ -190,8 +199,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ae-space-3);
+  gap: var(--ae-space-3) var(--ae-space-4);
   margin-block-start: auto;
   padding-block-start: var(--ae-space-4);
   box-shadow: inset 0 1px 0 var(--ae-border);
@@ -247,6 +255,8 @@
   display: flex;
   align-items: center;
   min-block-size: calc(var(--ae-control-size) + 2 * var(--ae-space-3));
+  /* A header that wraps (a phone, a long title) keeps clear of its seams. */
+  padding-block: var(--ae-space-2);
 }
 
 /* Group and column headings in the same small capitals as a pane's (aequitas' .eyebrow); a row's
@@ -296,4 +306,46 @@
   background: transparent;
   box-shadow: inset 0 0 0 1px var(--ae-border);
   backdrop-filter: none;
+}
+
+/* A list's filter row: its links lead, the search keeps to the end; on a phone the search takes
+   the row it wraps onto. */
+.page-filters > .search-box {
+  margin-inline-start: auto;
+}
+
+@media (width < 48rem) {
+  .page-filters > .search-box {
+    flex: 1 1 100%;
+
+    & > .input {
+      inline-size: 100%;
+    }
+  }
+}
+
+/* A column's heading is one word or two; the table scrolls sideways before it breaks one. */
+.table thead th {
+  white-space: nowrap;
+}
+
+/* A group's heading inside a table (a day in a list) opens its rows: room above, close below. */
+.table th[scope='rowgroup'] {
+  padding-block: var(--ae-space-5) var(--ae-space-1);
+}
+
+/* Three panes at a laptop's width leave the list too narrow to scan: while an item is open the
+   sidebar gives way to its rail first. */
+@media (width < 80rem) {
+  .shell[data-collapsible]:has(.shell[data-inspector]) {
+    --sidebar: var(--rail);
+  }
+}
+
+/* On a phone an open item is the view: the list waits behind it, and the inspector's close (and
+   Escape) go back to it. Hidden rather than reordered, so focus follows what is seen. */
+@media (width < 48rem) {
+  .shell[data-inspector][data-closable] > .main {
+    display: none;
+  }
 }

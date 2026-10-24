@@ -146,7 +146,7 @@ const settingsOpen = computed(() => route.query.settings !== undefined)
         </template>
         <ul
           v-if="states.length"
-          class="cluster gap-5 text-s"
+          class="stack gap-1 text-s"
           data-variant="plain"
           aria-label="Modules now"
         >
@@ -200,27 +200,27 @@ const settingsOpen = computed(() => route.query.settings !== undefined)
       <EmptyState v-else-if="panels.length">
         What the modules do shows up here as it happens.
       </EmptyState>
-    </div>
 
-    <EmptyState v-if="project && !panels.length">
-      No module is on. Switch one on under <NuxtLink to="/modules" class="link">Modules</NuxtLink>
-      to use it for this project.
-    </EmptyState>
-    <!-- Setting a module up is done once; it waits here, folded, under its name. -->
-    <AppSection v-if="project && panels.length" title="Set up">
-      <div>
-        <details
-          v-for="panel in panels"
-          :key="panel.id"
-          class="accordion"
-          :data-accent="panel.accent"
-        >
-          <summary><ModuleLabel :module="panel.id" /></summary>
-          <!-- Panels are set small here, so none sizes its own text. -->
-          <div class="text-s pb-4"><component :is="panel.component" :project="project" /></div>
-        </details>
-      </div>
-    </AppSection>
+      <EmptyState v-if="!panels.length">
+        No module is on. Switch one on under <NuxtLink to="/modules" class="link">Modules</NuxtLink>
+        to use it for this project.
+      </EmptyState>
+      <!-- Setting a module up is done once; it waits here, folded, under its name. -->
+      <AppSection v-else title="Set up">
+        <div>
+          <details
+            v-for="panel in panels"
+            :key="panel.id"
+            class="accordion"
+            :data-accent="panel.accent"
+          >
+            <summary><ModuleLabel :module="panel.id" /></summary>
+            <!-- Panels are set small here, so none sizes its own text. -->
+            <div class="text-s pb-4"><component :is="panel.component" :project="project" /></div>
+          </details>
+        </div>
+      </AppSection>
+    </div>
 
     <template v-if="project" #actions>
       <NuxtLink v-if="!settingsOpen" :to="{ query: { settings: null } }" class="btn" data-size="s"

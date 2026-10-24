@@ -83,7 +83,12 @@ useHead({
 <template>
   <!-- A shell of its own inside the console's main column: the page's pane, and its inspector.
        Both open with a bar of one height, so their seam runs straight across. -->
-  <div class="shell" :data-inspector="inspector ? '' : undefined" :data-accent="section?.accent">
+  <div
+    class="shell"
+    :data-inspector="inspector ? '' : undefined"
+    :data-closable="inspector && asideClose ? '' : undefined"
+    :data-accent="section?.accent"
+  >
     <div class="main">
       <header class="pane-bar page-header items-center hairline-b px-5">
         <div class="cluster items-baseline gap-2 min-w-0">
@@ -109,16 +114,19 @@ useHead({
 
       <div class="stack gap-5 p-5">
         <slot v-if="!error" name="lead" />
-        <div v-if="slots.filters && !error" class="cluster justify-between items-center gap-4">
-          <slot name="filters" />
+        <!-- The filters belong to the list under them, so they sit closer to it than to the lead. -->
+        <div class="stack gap-3">
+          <div v-if="slots.filters && !error" class="page-filters cluster items-center gap-4">
+            <slot name="filters" />
+          </div>
+          <AppAlert v-if="error" :title="failed ?? 'Could not load this page.'">
+            {{ errorMessage(error) }}
+            <template v-if="retry" #actions>
+              <button type="button" class="btn" data-size="s" @click="retry()">Try again</button>
+            </template>
+          </AppAlert>
+          <div v-else class="stack gap-5"><slot /></div>
         </div>
-        <AppAlert v-if="error" :title="failed ?? 'Could not load this page.'">
-          {{ errorMessage(error) }}
-          <template v-if="retry" #actions>
-            <button type="button" class="btn" data-size="s" @click="retry()">Try again</button>
-          </template>
-        </AppAlert>
-        <slot v-else />
 
         <footer v-if="slots.danger && !inspector && !error" class="danger-zone">
           <slot name="danger" />

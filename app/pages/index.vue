@@ -33,7 +33,7 @@ const items = (project: ProjectSummary, module: string) =>
         </thead>
         <tbody>
           <tr v-for="project in data" :key="project.id">
-            <td>
+            <td class="nowrap">
               <div class="stack gap-1">
                 <NuxtLink :to="`/p/${project.id}`" class="link weight-600">{{
                   project.name

@@ -27,7 +27,9 @@ const at = (path: string) => (route.path === path ? 'page' : undefined)
 </script>
 
 <template>
-  <nav class="sidebar" aria-label="Workspace">
+  <!-- In the rail the labels are too long for its width: icons only, the names stay for screen
+       readers. -->
+  <nav class="sidebar" aria-label="Workspace" data-labels="hidden">
     <button
       type="button"
       class="btn sidebar-switch"
@@ -105,7 +107,7 @@ const at = (path: string) => (route.path === path ? 'page' : undefined)
     <footer class="stack gap-3">
       <ThemeSwitch v-model="theme" />
       <div class="cluster justify-between gap-2 text-s">
-        <span class="font-mono text-muted">v{{ version }}</span>
+        <span class="font-mono text-muted sidebar-label">v{{ version }}</span>
         <button type="button" class="link" @click="emit('signOut')">Sign out</button>
       </div>
     </footer>
