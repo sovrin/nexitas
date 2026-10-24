@@ -15,6 +15,7 @@ services:
       NEXITAS_ORIGIN: ${NEXITAS_ORIGIN:-http://localhost:3000}
       NEXITAS_BOOTSTRAP_TOKEN: ${NEXITAS_BOOTSTRAP_TOKEN:?Set a random installation key of at least 32 characters}
       COLLATAS_WEBHOOK_URL: ${COLLATAS_WEBHOOK_URL:-}
+      COLLATAS_WEBHOOK_SECRET: ${COLLATAS_WEBHOOK_SECRET:-}
     ports:
       - ${NEXITAS_BIND:-127.0.0.1:3000}:3000
     volumes:
