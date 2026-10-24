@@ -124,6 +124,62 @@
   }
 }
 
+/* Search opens the palette rather than going anywhere, so it is a button; aequitas draws only the
+   sidebar's links, so it takes their look here: in the column, in the rail and in a phone's row. */
+.sidebar > .sidebar-search {
+  display: flex;
+  align-items: center;
+  gap: var(--ae-space-3);
+  min-block-size: var(--ae-control-size-s);
+  padding: 0 var(--ae-space-3);
+  border: 0;
+  background: none;
+  font-size: var(--ae-text-s);
+  font-weight: 500;
+  color: var(--ae-text);
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--ae-duration) var(--ae-ease);
+
+  &:hover {
+    background: var(--ae-fill-hover);
+    transition-duration: var(--ae-duration-fast);
+  }
+
+  &:active {
+    background: var(--ae-fill-active);
+    transition-duration: 0s;
+  }
+
+  & > .icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: calc(1em * pow(var(--ae-phi), 0.5));
+  }
+}
+
+@container (inline-size < 7rem) {
+  .sidebar > .sidebar-search {
+    flex-direction: column;
+    gap: var(--ae-space-0);
+    padding: var(--ae-space-2) var(--ae-space-1);
+    font-size: var(--ae-text-xs);
+    text-align: center;
+
+    & > .icon {
+      font-size: var(--ae-text-l);
+    }
+  }
+}
+
+@media (width < 48rem) {
+  .sidebar > .sidebar-search {
+    flex-direction: row;
+    white-space: nowrap;
+  }
+}
+
 /* A module's place in the sidebar carries its hue in the icon; its current edge and tint come
    from the same data-accent. */
 .sidebar a[data-accent] > .icon {
@@ -141,19 +197,6 @@
   box-shadow: inset 0 1px 0 var(--ae-border);
   font-size: var(--ae-text-s);
   color: var(--ae-text-muted);
-}
-
-/* Panes side by side with a hairline between them, not a gap between cards: the grid draws its
-   top and start edges, each pane its end and bottom ones, so a short last row leaves no hole. */
-.seams {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-  box-shadow: inset 1px 1px 0 var(--ae-border);
-
-  & > * {
-    padding: var(--ae-space-5);
-    box-shadow: inset -1px -1px 0 var(--ae-border);
-  }
 }
 
 /* What the browser draws itself, in the console's colours. */

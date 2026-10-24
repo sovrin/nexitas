@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { errorMessage } from '../lib/format'
 const props = defineProps<{ setup?: boolean }>()
 const { name } = useRuntimeConfig().public.nexitas
 // The lines an app or module sets in its app.config, and the modules this build has.
@@ -9,28 +8,22 @@ const chosen = ref<string[]>([])
 const email = ref('')
 const password = ref('')
 const token = ref('')
-const error = ref('')
-const pending = ref(false)
-async function submit() {
-  pending.value = true
-  error.value = ''
-  try {
-    await $fetch(props.setup ? '/api/auth/setup' : '/api/auth/login', {
+const { pending, error, issues, submit } = useSubmit()
+async function signIn() {
+  const owner = await submit(() =>
+    $fetch(props.setup ? '/api/auth/setup' : '/api/auth/login', {
       method: 'POST',
       body: {
         email: email.value,
         password: password.value,
         ...(props.setup ? { token: token.value.trim(), modules: chosen.value } : {}),
       },
-    })
-    password.value = ''
-    token.value = ''
-    await navigateTo('/')
-  } catch (cause) {
-    error.value = errorMessage(cause)
-  } finally {
-    pending.value = false
-  }
+    }),
+  )
+  if (!owner) return
+  password.value = ''
+  token.value = ''
+  await navigateTo('/')
 }
 </script>
 
@@ -47,7 +40,7 @@ async function submit() {
           {{ setup ? text.setup : text.signIn }}
         </p>
       </div>
-      <form class="stack gap-5" @submit.prevent="submit">
+      <form class="stack gap-5" @submit.prevent="signIn">
         <fieldset :disabled="pending" class="stack gap-4">
           <div class="field">
             <label for="email">Email</label>
@@ -55,6 +48,7 @@ async function submit() {
               id="email"
               v-model="email"
               class="input"
+              data-size="s"
               type="email"
               autocomplete="username"
               placeholder="you@example.com"
@@ -68,6 +62,7 @@ async function submit() {
               id="password"
               v-model="password"
               class="input"
+              data-size="s"
               type="password"
               :autocomplete="setup ? 'new-password' : 'current-password'"
               required
@@ -85,6 +80,7 @@ async function submit() {
               id="token"
               v-model="token"
               class="input font-mono text-s"
+              data-size="s"
               type="password"
               autocomplete="off"
               required
@@ -113,22 +109,23 @@ async function submit() {
             <small class="text-muted">You can switch each on or off later, under Modules.</small>
           </fieldset>
         </fieldset>
-        <div v-if="error" class="alert" data-tone="danger" role="alert">
-          <div>
-            <strong>{{ setup ? 'Could not create the account.' : 'Could not sign in.' }}</strong>
-            {{ error }}
-          </div>
+        <FormIssues
+          :error="error"
+          :issues="issues"
+          :failed="setup ? 'Could not create the account.' : 'Could not sign in.'"
+        />
+        <div class="cluster gap-3 hairline-t pt-5">
+          <button
+            type="submit"
+            class="btn end"
+            data-size="s"
+            data-variant="primary"
+            :disabled="pending"
+            :aria-busy="pending || undefined"
+          >
+            {{ setup ? 'Create owner account' : 'Sign in' }}
+          </button>
         </div>
-        <button
-          type="submit"
-          class="btn"
-          data-size="s"
-          data-variant="primary"
-          :disabled="pending"
-          :aria-busy="pending || undefined"
-        >
-          {{ setup ? 'Create owner account' : 'Sign in' }}
-        </button>
       </form>
       <p class="caption">
         <i class="icon" data-icon="lock" data-size="s" aria-hidden="true"></i>

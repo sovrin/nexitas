@@ -6,20 +6,13 @@ defineProps<{ error: string; issues: readonly FieldIssue[]; failed: string }>()
 </script>
 
 <template>
-  <div v-if="issues.length || error" class="alert" data-tone="danger" role="alert">
-    <div>
-      <template v-if="error"
-        ><strong>{{ failed }}</strong> {{ error }}</template
-      >
-      <template v-else>
-        <strong>Check these fields.</strong>
-        <ul>
-          <li v-for="issue in issues" :key="issue.path">
-            <span class="font-mono">{{ issue.path }}</span
-            >: {{ issue.message }}
-          </li>
-        </ul>
-      </template>
-    </div>
-  </div>
+  <AppAlert v-if="error" :title="failed">{{ error }}</AppAlert>
+  <AppAlert v-else-if="issues.length" title="Check these fields.">
+    <ul>
+      <li v-for="issue in issues" :key="issue.path">
+        <span class="font-mono">{{ issue.path }}</span
+        >: {{ issue.message }}
+      </li>
+    </ul>
+  </AppAlert>
 </template>

@@ -36,7 +36,7 @@ defineExpose({ open })
 
 <template>
   <dialog ref="dialog" class="palette" data-light-dismiss aria-label="Go to, or run a command">
-    <i class="icon" data-icon="search"></i>
+    <i class="icon" data-icon="search" aria-hidden="true"></i>
     <input
       class="input"
       placeholder="Go to a project or module, or run a command…"
@@ -47,7 +47,8 @@ defineExpose({ open })
       <div v-if="sections.length" role="group" aria-label="This project">
         <h6 aria-hidden="true">This project</h6>
         <div role="option" data-close @click="go(`/p/${project}`)">
-          <i class="icon" data-icon="grid"></i> Overview <small>{{ project }}</small>
+          <i class="icon" data-icon="grid" aria-hidden="true"></i> Overview
+          <small class="font-mono">{{ project }}</small>
         </div>
         <div
           v-for="section in sections"
@@ -58,8 +59,7 @@ defineExpose({ open })
           :data-keywords="section.module"
           @click="go(section.href)"
         >
-          <i class="icon" :data-icon="section.icon"></i> {{ section.label }}
-          <small>{{ section.module }}</small>
+          <i class="icon" :data-icon="section.icon" aria-hidden="true"></i> {{ section.label }}
         </div>
       </div>
       <div role="group" aria-label="Projects">
@@ -72,26 +72,26 @@ defineExpose({ open })
           :data-keywords="known.id"
           @click="go(`/p/${known.id}`)"
         >
-          <i class="icon" data-icon="folder"></i> {{ known.name }}
+          <i class="icon" data-icon="folder" aria-hidden="true"></i> {{ known.name }}
           <small v-if="idDiffers(known)" class="font-mono">{{ known.id }}</small>
         </div>
-        <div role="option" data-close data-keywords="new create" @click="go('/projects/new')">
-          <i class="icon" data-icon="plus"></i> Add a project
+        <div role="option" data-close data-keywords="add create" @click="go('/projects/new')">
+          <i class="icon" data-icon="plus" aria-hidden="true"></i> New project
         </div>
       </div>
       <div role="group" aria-label="Install">
         <h6 aria-hidden="true">Install</h6>
         <div role="option" data-close @click="go('/')">
-          <i class="icon" data-icon="folder"></i> All projects
+          <i class="icon" data-icon="folder" aria-hidden="true"></i> Projects
         </div>
         <div role="option" data-close data-keywords="switch on off" @click="go('/modules')">
-          <i class="icon" data-icon="puzzle"></i> Modules
+          <i class="icon" data-icon="puzzle" aria-hidden="true"></i> Modules
         </div>
         <div role="option" data-close data-keywords="theme appearance" @click="pickTheme('dark')">
-          <i class="icon" data-icon="moon"></i> Dark theme
+          <i class="icon" data-icon="moon" aria-hidden="true"></i> Dark theme
         </div>
         <div role="option" data-close data-keywords="theme appearance" @click="pickTheme('light')">
-          <i class="icon" data-icon="sun"></i> Light theme
+          <i class="icon" data-icon="sun" aria-hidden="true"></i> Light theme
         </div>
         <div
           role="option"
@@ -99,10 +99,10 @@ defineExpose({ open })
           data-keywords="theme appearance os"
           @click="pickTheme('auto')"
         >
-          <i class="icon" data-icon="circle-half"></i> Theme from the system
+          <i class="icon" data-icon="circle-half" aria-hidden="true"></i> Theme from the system
         </div>
         <div role="option" data-close data-keywords="log out leave" @click="emit('signOut')">
-          <i class="icon" data-icon="log-out"></i> Sign out
+          <i class="icon" data-icon="log-out" aria-hidden="true"></i> Sign out
         </div>
       </div>
     </div>

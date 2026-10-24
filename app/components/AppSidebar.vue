@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ProjectSummary } from '../../shared/contracts'
 import { idDiffers } from '../lib/projects'
 import ThemeSwitch from './ae/ThemeSwitch.vue'
 // Bumped by the release PR, so it names the release this build belongs to: the app's, not the
@@ -15,17 +14,8 @@ const theme = useThemeMode()
 const { name } = useRuntimeConfig().public.nexitas
 const { project, projects, sections } = useSections()
 const open = computed(() => projects.value?.find((known) => known.id === project.value))
-// What each module says about the open project, live; its reading is the item marked `figure`.
-// useRequestFetch, not $fetch: on the server it forwards the owner's session cookie.
-const request = useRequestFetch()
-const { data: summary, refresh } = await useAsyncData(
-  () => `sidebar-${project.value}`,
-  () =>
-    project.value
-      ? request<ProjectSummary>(`/api/projects/${project.value}`)
-      : Promise.resolve(null),
-)
-useLive(refresh)
+// What each module says about the open project; its reading is the item marked `figure`.
+const { data: summary } = await useProjectSummary()
 function reading(module: string) {
   const items = summary.value?.status.find((status) => status.module === module)?.items ?? []
   return {
@@ -71,14 +61,14 @@ const at = (path: string) => (route.path === path ? 'page' : undefined)
       >
       <hr />
       <NuxtLink to="/projects/new" data-close
-        ><i class="icon" data-icon="plus" aria-hidden="true"></i> Add a project</NuxtLink
+        ><i class="icon" data-icon="plus" aria-hidden="true"></i> New project</NuxtLink
       >
     </div>
 
-    <a href="#" @click.prevent="emit('search')"
-      ><i class="icon" data-icon="search" aria-hidden="true"></i><span>Search</span
-      ><kbd class="end sidebar-label">⌘K</kbd></a
-    >
+    <button type="button" class="sidebar-search" @click="emit('search')">
+      <i class="icon" data-icon="search" aria-hidden="true"></i><span>Search</span
+      ><kbd class="end sidebar-label">⌘K</kbd>
+    </button>
 
     <template v-if="project">
       <h6>Project</h6>
@@ -96,13 +86,10 @@ const at = (path: string) => (route.path === path ? 'page' : undefined)
         ><span
           v-if="reading(section.module).figure"
           class="end sidebar-label cluster gap-2 flex-nowrap tabular font-mono"
-          ><span
-            v-if="reading(section.module).tone"
-            class="dot"
-            :data-tone="reading(section.module).tone"
-            aria-hidden="true"
-          ></span
-          >{{ reading(section.module).figure }}</span
+          ><StateDot v-if="reading(section.module).tone" :tone="reading(section.module).tone">{{
+            reading(section.module).figure
+          }}</StateDot
+          ><template v-else>{{ reading(section.module).figure }}</template></span
         ></NuxtLink
       >
     </template>

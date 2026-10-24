@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProjectActivity, ProjectSummary } from '../../../../shared/contracts'
+import type { ProjectActivity } from '../../../../shared/contracts'
 import {
   errorMessage,
   formatAge,
@@ -10,8 +10,8 @@ import {
 } from '../../../lib/format'
 
 const id = useProject().id.value
-const { data: project, error, refresh } = await useFetch<ProjectSummary>(`/api/projects/${id}`)
-useLive(refresh)
+// The sidebar reads the same summary, under the same key: fetched once for both.
+const { data: project, error, refresh } = await useProjectSummary()
 // Each switched-on module's part of the project, under its name and icon, in its hue. The panels
 // are global components, so a name from the config resolves at runtime.
 const allPanels = useAppConfig()
@@ -34,10 +34,12 @@ const seen = useCookie<number | null>(`nexitas-seen-${id}`, {
   maxAge: 60 * 60 * 24 * 400,
 })
 const firstVisit = !seen.value
-const lastLooked = seen.value ?? Date.now() - 7 * DAY
+// A first visit counts what the whole story holds: the same two weeks it shows.
+const since = Date.now() - 14 * DAY
+const lastLooked = seen.value ?? since
 const { data: activity, refresh: refreshActivity } = await useFetch<ProjectActivity>(
   `/api/projects/${id}/activity`,
-  { query: { since: Date.now() - 14 * DAY } },
+  { query: { since } },
 )
 useLive(refreshActivity)
 onMounted(() => (seen.value = Date.now()))
@@ -81,11 +83,10 @@ const days = computed(() => {
   return groups
 })
 const headline = computed(() => {
-  const count = firstVisit
-    ? (activity.value?.items ?? []).filter((item) => item.at > lastLooked).length
-    : fresh.value.length
-  const when = firstVisit ? 'this week' : 'since you last looked'
-  return count ? `${plural(count, 'change')} ${when}` : `Nothing new ${when}`
+  const when = firstVisit ? 'in the last two weeks' : 'since you last looked'
+  return fresh.value.length
+    ? `${plural(fresh.value.length, 'change')} ${when}`
+    : `Nothing new ${when}`
 })
 // Each module's state now, in its hue: the line under the headline.
 const states = computed(() =>
@@ -94,22 +95,31 @@ const states = computed(() =>
   ),
 )
 
+// "Saved." stands until the settings are touched again.
 const savedNotice = ref(false)
 async function saved() {
   await refresh()
   savedNotice.value = true
 }
 
+const deleting = ref(false)
 const deleteError = ref('')
 async function remove() {
+  deleting.value = true
   deleteError.value = ''
   try {
     await $fetch(`/api/projects/${id}/delete`, { method: 'POST', body: {} })
     await navigateTo('/')
   } catch (cause) {
     deleteError.value = errorMessage(cause)
+  } finally {
+    deleting.value = false
   }
 }
+
+// The project's settings open beside the story on demand (?settings), so the story has the room.
+const route = useRoute()
+const settingsOpen = computed(() => route.query.settings !== undefined)
 </script>
 
 <template>
@@ -118,22 +128,16 @@ async function remove() {
     :head="id"
     :trail="[{ label: 'Projects', to: '/' }]"
     aside-title="Settings"
+    :aside-close="settingsOpen ? { query: {} } : undefined"
     failed="Could not load this project."
     :error="error"
   >
-    <template v-if="project" #subtitle
-      ><span class="font-mono">{{ project.origins.join(' · ') }}</span></template
-    >
-    <AppAlert v-if="deleteError" title="Could not delete the project.">{{ deleteError }}</AppAlert>
-
     <!-- The news first: what changed since the owner last looked, then each module's state now,
          then the story of what happened, day by day. How to set the modules up waits below. -->
     <div v-if="project" class="stack gap-6">
       <AppLead :title="headline">
         <template #meta>
-          <template v-if="firstVisit"
-            >The last two weeks below, from every module that is on.</template
-          >
+          <template v-if="firstVisit">From every module that is on.</template>
           <template v-else
             >Last looked {{ formatAge(lastLooked) }},
             <time :datetime="new Date(lastLooked).toISOString()">{{ formatTime(lastLooked) }}</time
@@ -159,8 +163,7 @@ async function remove() {
       </AppLead>
 
       <div v-if="days.length" class="stack gap-5">
-        <section v-for="day in days" :key="day.name" class="stack gap-3" :aria-label="day.name">
-          <h3 class="eyebrow">{{ day.name }}</h3>
+        <AppSection v-for="day in days" :key="day.name" :title="day.name">
           <ol class="timeline">
             <template v-for="(line, index) in day.lines" :key="index">
               <!-- Where the owner left off: what is above came after. -->
@@ -192,15 +195,16 @@ async function remove() {
               </li>
             </template>
           </ol>
-        </section>
+        </AppSection>
       </div>
       <EmptyState v-else-if="panels.length">
-        Feedback, issues, entries and publishes show up here as they happen.
+        What the modules do shows up here as it happens.
       </EmptyState>
     </div>
 
     <EmptyState v-if="project && !panels.length">
-      No module is on. Switch one on under Modules to use it for this project.
+      No module is on. Switch one on under <NuxtLink to="/modules" class="link">Modules</NuxtLink>
+      to use it for this project.
     </EmptyState>
     <!-- Setting a module up is done once; it waits here, folded, under its name. -->
     <AppSection v-if="project && panels.length" title="Set up">
@@ -218,7 +222,12 @@ async function remove() {
       </div>
     </AppSection>
 
-    <template v-if="project" #aside>
+    <template v-if="project" #actions>
+      <NuxtLink v-if="!settingsOpen" :to="{ query: { settings: null } }" class="btn" data-size="s"
+        >Settings</NuxtLink
+      >
+    </template>
+    <template v-if="project && settingsOpen" #aside>
       <AppAlert v-if="savedNotice" tone="success" title="Saved."
         >Every module uses the new settings from now on.</AppAlert
       >
@@ -226,19 +235,24 @@ async function remove() {
         :key="JSON.stringify([project.name, project.origins])"
         :project="project"
         @saved="saved"
+        @input="savedNotice = false"
+        @submit="savedNotice = false"
       />
     </template>
-    <template v-if="project" #danger>
+    <template v-if="project && settingsOpen" #danger>
       <span>Removes the project and everything every module keeps for it.</span>
       <DangerAction
         label="Delete project"
         :title="`Delete ${id} and all it holds?`"
         :confirm-word="id"
+        :pending="deleting"
         @confirm="remove"
       >
-        Removes the project and everything every module keeps for it. Its snippets stop working.
-        This cannot be undone.
+        Its snippets stop working. This cannot be undone.
       </DangerAction>
+      <AppAlert v-if="deleteError" class="w-full" title="Could not delete the project.">{{
+        deleteError
+      }}</AppAlert>
     </template>
   </AppPage>
 </template>

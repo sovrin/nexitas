@@ -32,18 +32,12 @@ async function toggle(id: string, enabled: boolean) {
       <div v-for="module in modules" :key="module.id" class="setting">
         <div>
           <b :id="`module-${module.id}`"><ModuleLabel :module="module.id" /></b>
-          <small :id="`module-${module.id}-what`"
-            >{{ module.description }} <span class="font-mono">{{ module.id }}</span></small
-          >
+          <small :id="`module-${module.id}-what`">{{ module.description }}</small>
         </div>
         <span class="cluster gap-4 flex-nowrap text-s">
-          <StateDot :tone="state(module.id)?.enabled ? 'success' : undefined">{{
-            state(module.id)?.enabled
-              ? 'On'
-              : state(module.id)?.hasData
-                ? 'Off · its data is kept'
-                : 'Off'
-          }}</StateDot>
+          <StateDot v-if="!state(module.id)?.enabled && state(module.id)?.hasData"
+            >Data kept</StateDot
+          >
           <input
             type="checkbox"
             role="switch"

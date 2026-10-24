@@ -69,15 +69,20 @@ Use these; don't write a module's own. Something two modules write alike belongs
   warning, danger) stay separate from the hue and always sit beside a word.
 - Pages are built from the core's page kit (app/components), never from the markup it draws, so
   every module looks alike and changes with the core. `node scripts/drift.ts` (in `pnpm lint`)
-  fails on a hand-built header, breadcrumb, alert, table frame, dot, aside, section heading, `h1`,
-  `style=""` or a project fetch outside `useProjectFetch`. What a module needs drawn that the kit
+  fails on a hand-built header, breadcrumb, alert (`.alert`, `role="alert"`), table (`<table>`,
+  its frame), dot, aside, section heading (`.eyebrow` on a heading), `h1`, `style=""`, a bound
+  `:style` that sets more than custom properties (`'--depth'`), or a project fetch outside
+  `useProjectFetch`. What a module needs drawn that the kit
   lacks is added to the kit, not to the module.
   - `<AppPage title failed :error :retry :trail>` frames every page as a pane: its header line
     (the trail from the module's section, the title, the `subtitle` as state, the `actions`),
     `filters` for a list's `<FilterLinks>` and `<SearchBox>` under it, the load error with "Try
     again", an `aside` that opens the inspector pane beside it (the item in hand, or the page's
-    settings; `aside-title` names it), and `danger` for what cannot be undone, alone at the
-    inspector's foot or the page's. It sets the module's hue and the tab's title.
+    settings), and `danger` for what cannot be undone, alone at the inspector's foot or the
+    page's. It sets the module's hue and the tab's title.
+  - The inspector's header names what it holds: `aside-title` a label for settings ("Delivery"),
+    `aside-name` the item in hand by its own name (`aside-mono` when it is an identifier, a key or
+    a slug). Nothing under the header repeats the name.
   - A list and its item: the list stays in the pane and the item opens in the inspector, so the
     item's page renders the list too (`/feedback/<id>` is the inbox with that entry beside it).
   - `useProjectFetch('/feedback')` reads the project's API and keeps the page live (`live: false`
@@ -85,16 +90,26 @@ Use these; don't write a module's own. Something two modules write alike belongs
   - `<AppLead title>` opens the project's overview and every module's first page: what needs the
     owner as one sentence, a muted line of context, then a state row. In AppPage's `lead` slot it
     stands above the `filters`.
+  - Counts: the lead's headline says what needs the owner; the filters carry the counts. The
+    lead's meta line and section headings don't repeat them.
   - `<AppSection title>` for a named part, `<DataTable>` for a table (ids, keys, origins, values
     mono), `<StateDot tone>word</StateDot>` for a state, `<AppAlert title tone>` for a message,
     `<EmptyState>` for nothing to show, `<PagerNav>` and `<SearchBox>` for long lists.
   - Forms: `useSubmit()`, inputs `data-size="s"`, a field's error as `<span data-error>`,
     `<FormIssues>` above a `div.cluster.gap-3.hairline-t.pt-5` with the `btn end` primary. At
     most one primary per view.
+  - A one-click write (a status button, a switch) is `disabled` and `aria-busy` while it runs.
+    After an action that removes the focused element, focus moves to the next sensible control
+    (the next row, else the list).
   - `<DangerAction>` for what cannot be undone (`confirm-word` when it takes much with it),
-    in AppPage's `danger` slot beside one line on what it removes; never next to a primary.
-  - A panel on a project's page (set small by the page, never by itself): what the module says
-    about it, its snippet, or `<PanelStart>` while it does nothing for it.
+    in AppPage's `danger` slot beside one line on what it removes; never next to a primary. The
+    dialog only adds what that line doesn't say ("This cannot be undone."), never repeats it.
+    `pending` while it runs; its error is an `<AppAlert>` in the `danger` slot beside the button,
+    not at the top of the pane.
+  - A panel on a project's overview is setup only (set small by the page, never by itself): its
+    snippet, a link to its settings, or `<PanelStart>` while it does nothing for the project. No
+    counts, status lines or StateDots: the overview's "Modules now" row and the sidebar's figure
+    tell the module's state.
   - `<AsideLayout>` for a component that needs a column beside it (a form's live preview).
   - A module's own stylesheet only for what it alone draws (a chart).
   - A static page beside a `[param]` page is named with a leading underscore: `_new.vue`.

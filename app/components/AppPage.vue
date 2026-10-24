@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from 'vue-router'
 import { errorMessage } from '../lib/format'
 
 interface Crumb {
@@ -15,7 +16,11 @@ interface Crumb {
  *  first page. A load error takes the content's place, with "Try again" when `retry` is given.
  *  What cannot be undone goes in `danger`: alone at the inspector's foot, or the page's. A list's
  *  status links and search go in `filters`, the row under the header line; an `<AppLead>` that
- *  should stand above them goes in `lead`.
+ *  should stand above them goes in `lead`. The inspector is headed by a label (`aside-title`), or
+ *  by the item in hand's own name (`aside-name`, with `aside-mono` for an identifier):
+ *  <AppPage title="Translations" :aside-name="key" aside-mono>. An inspector that can be closed
+ *  (an item, settings opened on demand) names where closing goes (`aside-close`): a ✕ in its
+ *  header, and Escape.
  *  Slots: default, `subtitle`, `actions`, `lead`, `filters`, `aside`, `danger`. */
 const props = defineProps<{
   title: string
@@ -26,9 +31,15 @@ const props = defineProps<{
   head?: string
   trail?: readonly Crumb[]
   error?: unknown
-  /** The inspector's heading, when nothing in it names what it holds ("Issue", "Settings"). Left
-   *  out where the inspector opens with its own heading, so no label sits over a heading. */
+  /** The inspector's label, when nothing in it names what it holds ("Settings", "Delivery"). */
   asideTitle?: string
+  /** The item in the inspector by its own name ("Checkout fails on Safari"): its heading in place
+   *  of a label, so nothing under it repeats the name. */
+  asideName?: string
+  /** The aside's name is an identifier one could type (a key, a slug): set mono. */
+  asideMono?: boolean
+  /** Where closing the inspector goes: the list without its item, the page without its settings. */
+  asideClose?: RouteLocationRaw
   /** What failed, for the load error: "Could not load the inbox." */
   failed?: string
   retry?: () => unknown
@@ -52,6 +63,15 @@ const crumbs = computed((): Crumb[] =>
     : [...(props.trail ?? [])],
 )
 const inspector = computed(() => !!slots.aside && !props.error)
+// Escape closes the inspector, unless something else that is open (a dialog, a menu) takes it.
+function onKey(event: KeyboardEvent) {
+  if (event.key !== 'Escape' || event.defaultPrevented || !props.asideClose || !inspector.value)
+    return
+  if (document.querySelector('dialog[open], [popover]:popover-open')) return
+  navigateTo(props.asideClose)
+}
+onMounted(() => window.addEventListener('keydown', onKey))
+onUnmounted(() => window.removeEventListener('keydown', onKey))
 useHead({
   title: () => {
     const own = props.head ?? props.title
@@ -69,7 +89,7 @@ useHead({
         <div class="cluster items-baseline gap-2 min-w-0">
           <template v-if="crumbs.length">
             <nav aria-label="Breadcrumb">
-              <ol class="breadcrumb">
+              <ol class="breadcrumb text-l">
                 <li v-for="crumb in crumbs" :key="crumb.to">
                   <NuxtLink :to="crumb.to" :class="{ 'font-mono': crumb.mono }">{{
                     crumb.label
@@ -77,7 +97,7 @@ useHead({
                 </li>
               </ol>
             </nav>
-            <span class="text-muted" aria-hidden="true">/</span>
+            <span class="text-l text-muted" aria-hidden="true">/</span>
           </template>
           <h1 class="text-l weight-600 break-words min-w-0" :class="{ 'font-mono': mono }">
             {{ title }}
@@ -106,9 +126,25 @@ useHead({
       </div>
     </div>
 
-    <aside v-if="inspector" class="inspector" :aria-label="asideTitle ?? 'Details'">
-      <header class="pane-bar hairline-b px-5">
-        <h2 v-if="asideTitle" class="eyebrow">{{ asideTitle }}</h2>
+    <aside v-if="inspector" class="inspector" :aria-label="asideName ?? asideTitle ?? 'Details'">
+      <header class="pane-bar hairline-b px-5 gap-3">
+        <h2
+          v-if="asideName"
+          class="text-m weight-600 break-words min-w-0"
+          :class="{ 'font-mono': asideMono }"
+        >
+          {{ asideName }}
+        </h2>
+        <h2 v-else-if="asideTitle" class="eyebrow">{{ asideTitle }}</h2>
+        <NuxtLink
+          v-if="asideClose"
+          :to="asideClose"
+          class="btn end"
+          data-size="s"
+          data-variant="ghost"
+          aria-label="Close"
+          ><i class="icon" data-icon="x" aria-hidden="true"></i
+        ></NuxtLink>
       </header>
       <div class="stack gap-5 p-5">
         <slot name="aside" />
