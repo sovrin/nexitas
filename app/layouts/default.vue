@@ -3,13 +3,6 @@ import { errorMessage } from '../lib/format'
 
 // The console: the sidebar's pane and the page beside it, which brings its own inspector when it
 // has one (AppPage). ⌘K reaches everything from anywhere.
-const route = useRoute()
-const { refresh: refreshProjects } = useProject()
-// A project added or deleted joins the switcher or leaves it on the next page.
-watch(
-  () => route.path,
-  () => refreshProjects(),
-)
 const palette = ref<{ open: () => void }>()
 
 const error = ref('')
@@ -18,6 +11,7 @@ async function signOut() {
   try {
     await $fetch('/api/auth/logout', { method: 'POST', body: {} })
     clearNuxtData()
+    useState('auth').value = null
     await navigateTo('/login')
   } catch (cause) {
     error.value = errorMessage(cause)

@@ -36,10 +36,12 @@ export default defineNuxtConfig({
   // Paths in a layer resolve against the app that extends it, so modules reach the core through
   // #nexitas and the layer reaches aequitas through @aequitas.
   alias: { '@aequitas': aequitas, '#nexitas': root },
-  vite: { server: { fs: { allow: [root, resolve(aequitas, '..')] } } },
+  vite: {
+    server: { fs: { allow: [root, resolve(aequitas, '..')] } },
+    // Each module is its own checkout with its own node_modules: one copy of zod, not one per module.
+    resolve: { dedupe: ['zod'] },
+  },
   nitro: { preset: 'node-server' },
-  // Page changes crossfade through the browser's View Transitions (see nexitas.css for timing).
-  experimental: { viewTransition: true },
   runtimeConfig: {
     // The install's name: shown in the shell, and the prefix of its environment variables
     // (NEXITAS_DATA_DIR, …) and its database file (nexitas.sqlite).

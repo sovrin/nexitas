@@ -251,7 +251,7 @@ The page kit in `app/components` draws every page, the core's and every module's
 Timing is aequitas' (`--ae-duration` 220ms, its fast step, `--ae-ease`); reduced motion stills all of it through aequitas. Nothing scales or bounces.
 
 - The inspector eases in from its seam (fade plus a `space-5` slide) when an item opens beside its list: the console's one movement.
-- Page changes crossfade (View Transitions, fast step).
+- Page changes cut: a View Transition froze the screen until the new page had its data.
 - A live row drops in from just above, the rows below make room (an ease-in-out, the one easing nexitas adds), a leaving row fades out.
 - Alerts fade in where they stand; a state dot's colour eases over.
 

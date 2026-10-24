@@ -9,7 +9,8 @@ import {
   plural,
 } from '../../../lib/format'
 
-const id = useProject().id.value
+const { id: openId, refresh: refreshProjects } = useProject()
+const id = openId.value
 // The sidebar reads the same summary, under the same key: fetched once for both.
 const { data: project, error, refresh } = await useProjectSummary()
 // Each switched-on module's part of the project, under its name and icon, in its hue. The panels
@@ -98,7 +99,8 @@ const states = computed(() =>
 // "Saved." stands until the settings are touched again.
 const savedNotice = ref(false)
 async function saved() {
-  await refresh()
+  // The switcher shows a new name too.
+  await Promise.all([refresh(), refreshProjects()])
   savedNotice.value = true
 }
 
@@ -109,6 +111,7 @@ async function remove() {
   deleteError.value = ''
   try {
     await $fetch(`/api/projects/${id}/delete`, { method: 'POST', body: {} })
+    await refreshProjects()
     await navigateTo('/')
   } catch (cause) {
     deleteError.value = errorMessage(cause)

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { Project } from '../../../shared/contracts'
-const saved = (project: Project) => navigateTo(`/p/${project.id}`)
+const { refresh } = useProject()
+// The switcher shows the new project before its page opens.
+async function saved(project: Project) {
+  await refresh()
+  await navigateTo(`/p/${project.id}`)
+}
 </script>
 
 <template>

@@ -21,13 +21,6 @@
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-/* Page changes: a short crossfade instead of a cut, quick because it happens all day. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: var(--ae-duration-fast);
-  animation-timing-function: var(--ae-ease);
-}
-
 /* A state change (a marker turning green) eases over instead of snapping. */
 .dot {
   transition: background-color var(--ae-duration) ease;
