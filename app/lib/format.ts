@@ -73,3 +73,17 @@ export function formatAge(value: number | null, now = Date.now()) {
     timeZone: 'UTC',
   }).format(value)
 }
+
+/** "14:02": the time of day in UTC, for events already grouped under their day. */
+export const formatClock = (value: number) =>
+  new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }).format(
+    value,
+  )
+
+/** "Today", "Yesterday", or "Sun 19 Oct": the UTC day a moment fell on, as a heading. */
+export function formatDayName(value: number, now = Date.now()) {
+  const day = (ms: number) => new Date(ms).toISOString().slice(0, 10)
+  if (day(value) === day(now)) return 'Today'
+  if (day(value) === day(now - 24 * 60 * 60 * 1000)) return 'Yesterday'
+  return formatDay(day(value), true)
+}

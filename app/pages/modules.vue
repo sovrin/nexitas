@@ -27,44 +27,36 @@ async function toggle(id: string, enabled: boolean) {
   <AppPage title="Modules">
     <template #subtitle>Only what is on runs. Switching a module off keeps its data.</template>
     <AppAlert v-if="error" title="Could not switch the module.">{{ error }}</AppAlert>
-    <DataTable v-if="modules.length">
-      <thead>
-        <tr>
-          <th scope="col">Module</th>
-          <th scope="col">Id</th>
-          <th scope="col">What it does</th>
-          <th scope="col">State</th>
-          <th scope="col"><span class="sr-only">On</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="module in modules" :key="module.id">
-          <td class="weight-600"><ModuleLabel :module="module.id" /></td>
-          <td class="font-mono text-s text-muted">{{ module.id }}</td>
-          <td class="text-s text-muted">{{ module.description }}</td>
-          <td class="text-s">
-            <StateDot :tone="state(module.id)?.enabled ? 'success' : undefined">{{
-              state(module.id)?.enabled
-                ? 'On'
-                : state(module.id)?.hasData
-                  ? 'Off · its data is kept'
-                  : 'Off'
-            }}</StateDot>
-          </td>
-          <td>
-            <input
-              type="checkbox"
-              role="switch"
-              :checked="state(module.id)?.enabled"
-              :disabled="pending === module.id"
-              :aria-busy="pending === module.id || undefined"
-              :aria-label="module.label"
-              @change="toggle(module.id, ($event.target as HTMLInputElement).checked)"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </DataTable>
+    <!-- A switch per module is a preference, not a row to select: preference rows. -->
+    <div v-if="modules.length" class="settings">
+      <div v-for="module in modules" :key="module.id" class="setting">
+        <div>
+          <b :id="`module-${module.id}`"><ModuleLabel :module="module.id" /></b>
+          <small :id="`module-${module.id}-what`"
+            >{{ module.description }} <span class="font-mono">{{ module.id }}</span></small
+          >
+        </div>
+        <span class="cluster gap-4 flex-nowrap text-s">
+          <StateDot :tone="state(module.id)?.enabled ? 'success' : undefined">{{
+            state(module.id)?.enabled
+              ? 'On'
+              : state(module.id)?.hasData
+                ? 'Off · its data is kept'
+                : 'Off'
+          }}</StateDot>
+          <input
+            type="checkbox"
+            role="switch"
+            :checked="state(module.id)?.enabled"
+            :disabled="pending === module.id"
+            :aria-busy="pending === module.id || undefined"
+            :aria-labelledby="`module-${module.id}`"
+            :aria-describedby="`module-${module.id}-what`"
+            @change="toggle(module.id, ($event.target as HTMLInputElement).checked)"
+          />
+        </span>
+      </div>
+    </div>
     <EmptyState v-else>This build has no modules.</EmptyState>
   </AppPage>
 </template>

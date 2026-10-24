@@ -1,10 +1,10 @@
-/* The shell's styles, shared by every app built on nexitas. It holds only what aequitas does not:
-   marker size and motion; otherwise aequitas' own looks. Unlayered, so it wins over aequitas'
-   layers; tokens only. An app's own stylesheet adds what only it needs.
+/* The shell's styles, shared by every app built on nexitas: what aequitas does not draw itself,
+   tokens only. Unlayered, so it wins over aequitas' layers. An app's own stylesheet adds what only
+   it needs.
 
-   The direction is text-first minimalism: aequitas' container, density and type scale, no panels,
-   colour only for state. Anything a person could type into a terminal (ids, origins, URLs, values,
-   days) is mono. */
+   The direction is a dark-first console (see AGENTS.md): panes divided by hairline seams, small
+   capitals for pane and column headings, one hue per module, colour otherwise only for state.
+   Anything a person could type into a terminal (ids, origins, URLs, values, days) is mono. */
 
 /* State markers before names read as state at a glance, not as bullets. A long name wraps
    beside its marker; the marker never shrinks. */
@@ -89,4 +89,168 @@
 }
 .search-box:focus-within .field-hint {
   display: block;
+}
+
+/* The console. Panes divide by hairline seams, never by shadow or a card; the one destructive
+   action of a pane sits alone at its foot (AppPage's danger slot). */
+
+/* The project switcher heads the sidebar: the mark, the open project's name and id. In the rail
+   (the sidebar under 7rem) only the mark stays; the readings and ⌘K hint go with the labels. */
+.sidebar-switch {
+  justify-content: flex-start;
+  inline-size: 100%;
+  margin-block-end: var(--ae-space-3);
+  text-align: start;
+}
+
+.sidebar-switch-name {
+  display: grid;
+  min-inline-size: 0;
+  line-height: 1.272;
+}
+
+.sidebar-switch > .icon {
+  margin-inline-start: auto;
+}
+
+@container (inline-size < 7rem) {
+  .sidebar-switch-name,
+  .sidebar-label {
+    display: none;
+  }
+
+  .sidebar-switch {
+    justify-content: center;
+  }
+}
+
+/* A module's place in the sidebar carries its hue in the icon; its current edge and tint come
+   from the same data-accent. */
+.sidebar a[data-accent] > .icon {
+  color: var(--ae-accent);
+}
+
+.danger-zone {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ae-space-3);
+  margin-block-start: auto;
+  padding-block-start: var(--ae-space-4);
+  box-shadow: inset 0 1px 0 var(--ae-border);
+  font-size: var(--ae-text-s);
+  color: var(--ae-text-muted);
+}
+
+/* Panes side by side with a hairline between them, not a gap between cards: the grid draws its
+   top and start edges, each pane its end and bottom ones, so a short last row leaves no hole. */
+.seams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  box-shadow: inset 1px 1px 0 var(--ae-border);
+
+  & > * {
+    padding: var(--ae-space-5);
+    box-shadow: inset -1px -1px 0 var(--ae-border);
+  }
+}
+
+/* What the browser draws itself, in the console's colours. */
+::selection {
+  background: color-mix(in oklch, var(--ae-accent) 35%, transparent);
+}
+
+:root {
+  caret-color: var(--ae-accent);
+  scrollbar-color: var(--ae-border-strong) transparent;
+}
+
+/* A module's name carries its hue in the icon only, so the words stay ink (ModuleLabel). */
+.module-label > .icon {
+  color: var(--ae-accent);
+}
+
+/* The console's one movement: the inspector opens along its own axis, easing in from the seam,
+   when an item is opened beside its list. Reduced motion makes the duration 1ms, so it simply
+   appears. */
+.shell[data-inspector] > .inspector {
+  transition:
+    opacity var(--ae-duration) var(--ae-ease),
+    translate var(--ae-duration) var(--ae-ease);
+
+  @starting-style {
+    opacity: 0;
+    translate: var(--ae-space-5) 0;
+  }
+}
+
+/* The inspector holds an item's properties, body and actions: a step wider than aequitas' φ⁶
+   default, so key and value share a row. */
+.shell[data-inspector] {
+  --inspector: calc(1rem * pow(var(--ae-phi), 6.5));
+}
+
+/* The sidebar shares the console's ground and is divided by its seam alone: aequitas paints it a
+   frosted surface, whose fill and blur made a second, bluer ground. */
+.shell > .sidebar {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+/* A pane's header bar, the same height in the main pane and the inspector, so the seam under both
+   runs straight across. */
+.pane-bar {
+  display: flex;
+  align-items: center;
+  min-block-size: calc(var(--ae-control-size) + 2 * var(--ae-space-3));
+}
+
+/* Group and column headings in the same small capitals as a pane's (aequitas' .eyebrow); a row's
+   own header cell stays the value it is. */
+.sidebar > h6,
+.table thead th {
+  font-size: var(--ae-text-xs);
+  font-weight: 560;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ae-text-muted);
+}
+
+/* On a phone the sidebar is a row: the switcher keeps the open project's name, the row fades
+   at the edge it can still scroll to, and the ⌘K hint goes where there is no keyboard. */
+@media (width < 48rem) {
+  .sidebar-switch {
+    flex: none;
+    inline-size: auto;
+    margin-block-end: 0;
+  }
+
+  .shell > .sidebar {
+    mask-image: linear-gradient(to right, black calc(100% - var(--ae-space-7)), transparent);
+  }
+
+  .sidebar kbd {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .sidebar kbd {
+    display: none;
+  }
+}
+
+/* A dot without a tone marks a quiet state (seen, draft, off): it stays ink, never the section's
+   hue, so colour on a dot always means the owner has something to look at. */
+.dot:not([data-tone]) {
+  background: var(--ae-text-muted);
+}
+
+/* Preference rows sit flat on the console like every other pane, divided by hairlines (aequitas
+   raises the group as a frosted panel). */
+.settings {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ae-border);
+  backdrop-filter: none;
 }

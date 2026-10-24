@@ -29,6 +29,10 @@ export interface NexitasModule {
   /** What this module says about one project: on the overview, the project's page, and the
    *  status line while the project is open. Nothing for a project it is not used for. */
   projectStatus?: (db: DatabaseSync, projectId: string) => readonly StatusItem[]
+  /** What happened in a project since `since` (ms), newest or oldest first, for its overview's
+   *  "since you last looked": new feedback, a new issue, a publish. Only what the module keeps
+   *  anyway; nothing about a visitor. Left out, the module says nothing there. */
+  projectActivity?: (db: DatabaseSync, projectId: string, since: number) => readonly ActivityItem[]
   /** Removes what this module keeps for a project. Runs in the core's transaction, before the
    *  project itself goes. */
   deleteProject?: (db: DatabaseSync, projectId: string) => void
@@ -54,6 +58,21 @@ export interface StatusItem {
   to?: string
   /** Colours the line's marker; the first item with a tone sets it. */
   tone?: 'success' | 'warning' | 'danger'
+  /** The short reading the sidebar shows beside the module's name, such as "1,284" or "18/21".
+   *  One item a module says carries it; the rest of the line stays for the overview. */
+  figure?: string
+}
+
+/** One thing that happened in a project, as its overview's timeline shows it. */
+export interface ActivityItem {
+  /** When it happened, in ms. */
+  at: number
+  /** What happened, in a few words: "New problem", "Published". */
+  title: string
+  /** What it was about, shown as text: an excerpt, an issue's title, an entry's name. */
+  detail?: string
+  /** Where it is. */
+  to?: string
 }
 
 /** What one module says, under its own name: on the status line, or about one project. */
@@ -76,6 +95,19 @@ export interface NavEntry {
   module?: string
 }
 
+/** aequitas' named accent hues. */
+export type AccentPreset =
+  | 'blue'
+  | 'indigo'
+  | 'purple'
+  | 'pink'
+  | 'red'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'teal'
+  | 'graphite'
+
 /** How the shell names a module wherever it shows the module's part. */
 export interface ModuleEntry {
   /** The NexitasModule's id. */
@@ -86,6 +118,10 @@ export interface ModuleEntry {
   description: string
   /** An aequitas icon (`data-icon`), different from every other module's. */
   icon: string
+  /** An aequitas accent preset (`data-accent`) for the module's section: its pages, its panel and
+   *  its place in the sidebar take this hue, the core's own pages stay graphite. Different from
+   *  every other module's; left out, the module is graphite too. */
+  accent?: AccentPreset
   /** Its component on a project's page, given the project as `project`, under its name and icon.
    *  Put it in the module's app/components/global/, so it resolves by name. */
   panel?: string

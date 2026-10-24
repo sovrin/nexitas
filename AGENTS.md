@@ -48,34 +48,51 @@ Use these; don't write a module's own. Something two modules write alike belongs
   `formatDelta`, `errorMessage`), never a module's own `Intl` or `toLocaleString`.
 - A module's server parts: a Nitro plugin that calls `registerModule(...)`, the module in
   `server/core/module.ts`, a `server/utils/<module>.ts` with its `route<Thing>(event)` helpers (the
-  thing or a 404, scoped by the request's project). Its `paths` name every prefix it serves:
+  thing or a 404, scoped by the request's project), and `projectActivity` for what happened since
+  the owner last looked, which the project's overview tells as one story. Its `paths` name every
+  prefix it serves:
   pages, `/api/...` and its `/v1/...` routes.
 
 ## UI
 
 - Built only from aequitas: semantic HTML plus its classes, `data-*` variants and ARIA state.
   `app/assets/nexitas.css` holds only what aequitas lacks and every app shares, with tokens only.
-- The look: aequitas' own defaults (density and type included), the page in aequitas'
-  `.container`: a navbar on top, the page, a status bar at the bottom. No cards, panels or
-  sidebar. Colour only reports state, always next to a word.
+- The look is a console, dark first (the owner can switch): aequitas' `.shell`, compact density,
+  square corners. The sidebar (`AppSidebar`) is the open project's switcher, its overview, each
+  module's section with its icon in the module's hue and the one reading it gives (a
+  `StatusItem.figure`), the install's pages, then theme, version and sign-out; a rail under
+  64rem, a row on a phone. ⌘K (`CommandPalette`) reaches every project, module and command.
+  Panes divide by hairline seams, never by shadow or cards; glass only where something floats
+  (menus, dialogs, the palette).
+- Colour: the core is graphite; each module names an aequitas accent preset in app.config
+  (`accent`), and its section, panel and sidebar entry take that hue. State tones (success,
+  warning, danger) stay separate from the hue and always sit beside a word.
 - Pages are built from the core's page kit (app/components), never from the markup it draws, so
   every module looks alike and changes with the core. `node scripts/drift.ts` (in `pnpm lint`)
   fails on a hand-built header, breadcrumb, alert, table frame, dot, aside, section heading, `h1`,
   `style=""` or a project fetch outside `useProjectFetch`. What a module needs drawn that the kit
   lacks is added to the kit, not to the module.
-  - `<AppPage title failed :error :retry :trail>` frames every page: breadcrumb (from the module's
-    section; none on its first page), heading, `subtitle` and `actions` slots, the load error
-    with "Try again", an `aside` slot for settings beside it, and the tab's title
-    (`<page> · <project id>`, then the app's name).
+  - `<AppPage title failed :error :retry :trail>` frames every page as a pane: its header line
+    (the trail from the module's section, the title, the `subtitle` as state, the `actions`),
+    `filters` for a list's `<FilterLinks>` and `<SearchBox>` under it, the load error with "Try
+    again", an `aside` that opens the inspector pane beside it (the item in hand, or the page's
+    settings; `aside-title` names it), and `danger` for what cannot be undone, alone at the
+    inspector's foot or the page's. It sets the module's hue and the tab's title.
+  - A list and its item: the list stays in the pane and the item opens in the inspector, so the
+    item's page renders the list too (`/feedback/<id>` is the inbox with that entry beside it).
   - `useProjectFetch('/feedback')` reads the project's API and keeps the page live (`live: false`
     for a form a refresh would reset).
+  - `<AppLead title>` opens the project's overview and every module's first page: what needs the
+    owner as one sentence, a muted line of context, then a state row. In AppPage's `lead` slot it
+    stands above the `filters`.
   - `<AppSection title>` for a named part, `<DataTable>` for a table (ids, keys, origins, values
     mono), `<StateDot tone>word</StateDot>` for a state, `<AppAlert title tone>` for a message,
     `<EmptyState>` for nothing to show, `<PagerNav>` and `<SearchBox>` for long lists.
   - Forms: `useSubmit()`, inputs `data-size="s"`, a field's error as `<span data-error>`,
     `<FormIssues>` above a `div.cluster.gap-3.hairline-t.pt-5` with the `btn end` primary. At
     most one primary per view.
-  - `<DangerAction>` for what cannot be undone (`confirm-word` when it takes much with it).
+  - `<DangerAction>` for what cannot be undone (`confirm-word` when it takes much with it),
+    in AppPage's `danger` slot beside one line on what it removes; never next to a primary.
   - A panel on a project's page (set small by the page, never by itself): what the module says
     about it, its snippet, or `<PanelStart>` while it does nothing for it.
   - `<AsideLayout>` for a component that needs a column beside it (a form's live preview).

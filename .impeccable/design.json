@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T21:30:00Z",
+  "title": "Design System: nexitas",
+  "extensions": {
+    "colorMeta": {
+      "graphite": {
+        "role": "primary",
+        "displayName": "Graphite",
+        "canonical": "var(--ae-accent) under data-accent=graphite",
+        "tonalRamp": [
+          "oklch(0.15 0.01 255)",
+          "oklch(0.26 0.01 255)",
+          "oklch(0.37 0.01 255)",
+          "oklch(0.48 0.01 255)",
+          "oklch(0.60 0.01 255)",
+          "oklch(0.72 0.01 255)",
+          "oklch(0.84 0.01 255)",
+          "oklch(0.95 0.01 255)"
+        ]
+      },
+      "graphite-day": {
+        "role": "primary",
+        "displayName": "Graphite (light theme)",
+        "canonical": "oklch(0.42 0.01 255)",
+        "tonalRamp": [
+          "oklch(0.15 0.01 255)",
+          "oklch(0.26 0.01 255)",
+          "oklch(0.37 0.01 255)",
+          "oklch(0.48 0.01 255)",
+          "oklch(0.60 0.01 255)",
+          "oklch(0.72 0.01 255)",
+          "oklch(0.84 0.01 255)",
+          "oklch(0.95 0.01 255)"
+        ]
+      },
+      "censitas-teal": {
+        "role": "secondary",
+        "displayName": "Censitas Teal",
+        "canonical": "var(--ae-accent) under data-accent=teal",
+        "tonalRamp": [
+          "oklch(0.15 0.15 195)",
+          "oklch(0.26 0.15 195)",
+          "oklch(0.37 0.15 195)",
+          "oklch(0.48 0.15 195)",
+          "oklch(0.60 0.15 195)",
+          "oklch(0.72 0.15 195)",
+          "oklch(0.84 0.15 195)",
+          "oklch(0.95 0.15 195)"
+        ]
+      },
+      "collatas-orange": {
+        "role": "secondary",
+        "displayName": "Collatas Orange",
+        "canonical": "var(--ae-accent) under data-accent=orange",
+        "tonalRamp": [
+          "oklch(0.15 0.15 55)",
+          "oklch(0.26 0.15 55)",
+          "oklch(0.37 0.15 55)",
+          "oklch(0.48 0.15 55)",
+          "oklch(0.60 0.15 55)",
+          "oklch(0.72 0.15 55)",
+          "oklch(0.84 0.15 55)",
+          "oklch(0.95 0.15 55)"
+        ]
+      },
+      "erratas-pink": {
+        "role": "secondary",
+        "displayName": "Erratas Pink",
+        "canonical": "var(--ae-accent) under data-accent=pink",
+        "tonalRamp": [
+          "oklch(0.15 0.15 350)",
+          "oklch(0.26 0.15 350)",
+          "oklch(0.37 0.15 350)",
+          "oklch(0.48 0.15 350)",
+          "oklch(0.60 0.15 350)",
+          "oklch(0.72 0.15 350)",
+          "oklch(0.84 0.15 350)",
+          "oklch(0.95 0.15 350)"
+        ]
+      },
+      "veritas-indigo": {
+        "role": "secondary",
+        "displayName": "Veritas Indigo",
+        "canonical": "var(--ae-accent) under data-accent=indigo",
+        "tonalRamp": [
+          "oklch(0.15 0.15 280)",
+          "oklch(0.26 0.15 280)",
+          "oklch(0.37 0.15 280)",
+          "oklch(0.48 0.15 280)",
+          "oklch(0.60 0.15 280)",
+          "oklch(0.72 0.15 280)",
+          "oklch(0.84 0.15 280)",
+          "oklch(0.95 0.15 280)"
+        ]
+      },
+      "linguitas-green": {
+        "role": "secondary",
+        "displayName": "Linguitas Green",
+        "canonical": "var(--ae-accent) under data-accent=green",
+        "tonalRamp": [
+          "oklch(0.15 0.15 150)",
+          "oklch(0.26 0.15 150)",
+          "oklch(0.37 0.15 150)",
+          "oklch(0.48 0.15 150)",
+          "oklch(0.60 0.15 150)",
+          "oklch(0.72 0.15 150)",
+          "oklch(0.84 0.15 150)",
+          "oklch(0.95 0.15 150)"
+        ]
+      },
+      "night-glass": {
+        "role": "neutral",
+        "displayName": "Night Glass",
+        "canonical": "var(--ae-bg)",
+        "tonalRamp": [
+          "oklch(0.15 0.008 255)",
+          "oklch(0.26 0.008 255)",
+          "oklch(0.37 0.008 255)",
+          "oklch(0.48 0.008 255)",
+          "oklch(0.60 0.008 255)",
+          "oklch(0.72 0.008 255)",
+          "oklch(0.84 0.008 255)",
+          "oklch(0.95 0.008 255)"
+        ]
+      },
+      "night-glass-sunken": {
+        "role": "neutral",
+        "displayName": "Night Glass Sunken",
+        "canonical": "var(--ae-bg-sunken)",
+        "tonalRamp": [
+          "oklch(0.15 0.008 255)",
+          "oklch(0.26 0.008 255)",
+          "oklch(0.37 0.008 255)",
+          "oklch(0.48 0.008 255)",
+          "oklch(0.60 0.008 255)",
+          "oklch(0.72 0.008 255)",
+          "oklch(0.84 0.008 255)",
+          "oklch(0.95 0.008 255)"
+        ]
+      },
+      "night-sheet": {
+        "role": "neutral",
+        "displayName": "Night Sheet",
+        "canonical": "var(--ae-surface)",
+        "tonalRamp": [
+          "oklch(0.15 0.008 255)",
+          "oklch(0.26 0.008 255)",
+          "oklch(0.37 0.008 255)",
+          "oklch(0.48 0.008 255)",
+          "oklch(0.60 0.008 255)",
+          "oklch(0.72 0.008 255)",
+          "oklch(0.84 0.008 255)",
+          "oklch(0.95 0.008 255)"
+        ]
+      },
+      "moon-ink": {
+        "role": "neutral",
+        "displayName": "Moon Ink",
+        "canonical": "var(--ae-text)",
+        "tonalRamp": [
+          "oklch(0.15 0.008 255)",
+          "oklch(0.26 0.008 255)",
+          "oklch(0.37 0.008 255)",
+          "oklch(0.48 0.008 255)",
+          "oklch(0.60 0.008 255)",
+          "oklch(0.72 0.008 255)",
+          "oklch(0.84 0.008 255)",
+          "oklch(0.95 0.008 255)"
+        ]
+      },
+      "moon-grey": {
+        "role": "neutral",
+        "displayName": "Moon Grey",
+        "canonical": "var(--ae-text-muted)",
+        "tonalRamp": [
+          "oklch(0.15 0.008 255)",
+          "oklch(0.26 0.008 255)",
+          "oklch(0.37 0.008 255)",
+          "oklch(0.48 0.008 255)",
+          "oklch(0.60 0.008 255)",
+          "oklch(0.72 0.008 255)",
+          "oklch(0.84 0.008 255)",
+          "oklch(0.95 0.008 255)"
+        ]
+      },
+      "seam": {
+        "role": "neutral",
+        "displayName": "Seam",
+        "canonical": "var(--ae-border)",
+        "tonalRamp": [
+          "oklch(0.15 0.008 255)",
+          "oklch(0.26 0.008 255)",
+          "oklch(0.37 0.008 255)",
+          "oklch(0.48 0.008 255)",
+          "oklch(0.60 0.008 255)",
+          "oklch(0.72 0.008 255)",
+          "oklch(0.84 0.008 255)",
+          "oklch(0.95 0.008 255)"
+        ]
+      },
+      "seam-strong": {
+        "role": "neutral",
+        "displayName": "Seam Strong",
+        "canonical": "var(--ae-border-strong)",
+        "tonalRamp": [
+          "oklch(0.15 0.008 255)",
+          "oklch(0.26 0.008 255)",
+          "oklch(0.37 0.008 255)",
+          "oklch(0.48 0.008 255)",
+          "oklch(0.60 0.008 255)",
+          "oklch(0.72 0.008 255)",
+          "oklch(0.84 0.008 255)",
+          "oklch(0.95 0.008 255)"
+        ]
+      },
+      "success": {
+        "role": "state",
+        "displayName": "Success",
+        "canonical": "var(--ae-success)",
+        "tonalRamp": [
+          "oklch(0.15 0.15 150)",
+          "oklch(0.26 0.15 150)",
+          "oklch(0.37 0.15 150)",
+          "oklch(0.48 0.15 150)",
+          "oklch(0.60 0.15 150)",
+          "oklch(0.72 0.15 150)",
+          "oklch(0.84 0.15 150)",
+          "oklch(0.95 0.15 150)"
+        ]
+      },
+      "warning": {
+        "role": "state",
+        "displayName": "Warning",
+        "canonical": "var(--ae-warning)",
+        "tonalRamp": [
+          "oklch(0.15 0.15 80)",
+          "oklch(0.26 0.15 80)",
+          "oklch(0.37 0.15 80)",
+          "oklch(0.48 0.15 80)",
+          "oklch(0.60 0.15 80)",
+          "oklch(0.72 0.15 80)",
+          "oklch(0.84 0.15 80)",
+          "oklch(0.95 0.15 80)"
+        ]
+      },
+      "danger": {
+        "role": "state",
+        "displayName": "Danger",
+        "canonical": "var(--ae-danger)",
+        "tonalRamp": [
+          "oklch(0.15 0.17 25)",
+          "oklch(0.26 0.17 25)",
+          "oklch(0.37 0.17 25)",
+          "oklch(0.48 0.17 25)",
+          "oklch(0.60 0.17 25)",
+          "oklch(0.72 0.17 25)",
+          "oklch(0.84 0.17 25)",
+          "oklch(0.95 0.17 25)"
+        ]
+      },
+      "info": {
+        "role": "state",
+        "displayName": "Info",
+        "canonical": "var(--ae-info)",
+        "tonalRamp": [
+          "oklch(0.15 0.12 235)",
+          "oklch(0.26 0.12 235)",
+          "oklch(0.37 0.12 235)",
+          "oklch(0.48 0.12 235)",
+          "oklch(0.60 0.12 235)",
+          "oklch(0.72 0.12 235)",
+          "oklch(0.84 0.12 235)",
+          "oklch(0.95 0.12 235)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "page-title": {
+        "displayName": "Page title",
+        "purpose": "The page's h1 in the pane bar; dialog titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Everything read: links, cells, prose."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "State beside the title, filters, pager, danger zone, search."
+      },
+      "pane-heading": {
+        "displayName": "Pane heading",
+        "purpose": "Small-caps heading of sidebar groups, sections, the inspector and table columns (aequitas eyebrow style)."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Ids, origins, URLs, keys, values, days, counts; tabular."
+      }
+    },
+    "shadows": [
+      {
+        "name": "seam",
+        "value": "inset 1px 1px 0 var(--ae-border) / inset -1px -1px 0 var(--ae-border)",
+        "purpose": "Hairlines between panes and panels; drawn inset so they never shift layout. Not elevation."
+      },
+      {
+        "name": "danger-seam",
+        "value": "inset 0 1px 0 var(--ae-border)",
+        "purpose": "The hairline over a pane's danger zone."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ae-duration",
+        "value": "var(--ae-duration) /* 220ms */",
+        "purpose": "Default transition: inspector, rows, alerts, dots."
+      },
+      {
+        "name": "ae-duration-fast",
+        "value": "var(--ae-duration-fast) /* ~136ms */",
+        "purpose": "Page crossfade, a leaving row."
+      },
+      {
+        "name": "ae-ease",
+        "value": "var(--ae-ease) /* cubic-bezier(0.2, 0, 0, 1) */",
+        "purpose": "Strong ease-out for everything that enters."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "Rows making room for a live arrival (nexitas' only motion token)."
+      },
+      {
+        "name": "inspector-enter",
+        "value": "opacity 0 and translate var(--ae-space-5) 0 to rest, over var(--ae-duration) var(--ae-ease)",
+        "purpose": "The console's one movement: the inspector easing in from its seam."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "rail",
+        "value": "64rem"
+      },
+      {
+        "name": "phone",
+        "value": "48rem"
+      },
+      {
+        "name": "rail-labels (container)",
+        "value": "7rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary of a view, in the module's hue.",
+      "html": "<button class=\"ds-btn-primary\">Mark done</button>",
+      "css": ".ds-btn-primary{background:var(--ae-accent);color:var(--ae-accent-contrast);border:0;border-radius:var(--ae-radius-full);height:var(--ae-control-size-s);padding:0 var(--ae-space-3);font:500 var(--ae-text-s)/1 var(--ae-font-sans);transition:background var(--ae-duration-fast) var(--ae-ease)}.ds-btn-primary:hover{background:color-mix(in oklch,var(--ae-accent) 88%,var(--ae-text))}.ds-btn-primary:focus-visible{outline:none;box-shadow:var(--ae-ring)}"
+    },
+    {
+      "name": "Tinted Button",
+      "kind": "button",
+      "refersTo": "button-tinted",
+      "description": "Every other action: a flat tint of the ink.",
+      "html": "<button class=\"ds-btn\">Mark spam</button>",
+      "css": ".ds-btn{background:var(--ae-fill);color:var(--ae-text);border:0;border-radius:var(--ae-radius-full);height:var(--ae-control-size-s);padding:0 var(--ae-space-3);font:500 var(--ae-text-s)/1 var(--ae-font-sans);transition:background var(--ae-duration-fast) var(--ae-ease)}.ds-btn:hover{background:var(--ae-fill-hover)}.ds-btn:active{background:var(--ae-fill-active)}.ds-btn:focus-visible{outline:none;box-shadow:var(--ae-ring)}"
+    },
+    {
+      "name": "Danger Zone",
+      "kind": "custom",
+      "refersTo": "danger-action",
+      "description": "The pane's one destructive action, alone at its foot.",
+      "html": "<footer class=\"ds-danger-zone\"><span>Removes this feedback for good.</span><button class=\"ds-btn-danger\">Delete entry</button></footer>",
+      "css": ".ds-danger-zone{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--ae-space-3);padding-block-start:var(--ae-space-4);box-shadow:inset 0 1px 0 var(--ae-border);font:var(--ae-text-s) var(--ae-font-sans);color:var(--ae-text-muted)}.ds-btn-danger{background:transparent;color:var(--ae-danger-ink);border:0;border-radius:var(--ae-radius-full);height:var(--ae-control-size-s);padding:0 var(--ae-space-3);font:500 var(--ae-text-s)/1 var(--ae-font-sans)}.ds-btn-danger:hover{background:color-mix(in oklch,var(--ae-danger) 14%,transparent)}.ds-btn-danger:focus-visible{outline:none;box-shadow:var(--ae-ring)}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-small",
+      "description": "A small tinted field with a bottom rule.",
+      "html": "<input class=\"ds-input\" type=\"search\" placeholder=\"Search\">",
+      "css": ".ds-input{background:var(--ae-fill);color:var(--ae-text);border:0;border-bottom:1px solid var(--ae-control-edge);border-radius:var(--ae-radius-full);height:var(--ae-control-size-s);padding:0 var(--ae-space-3);font:var(--ae-text-s) var(--ae-font-sans)}.ds-input:hover{background:var(--ae-fill-hover)}.ds-input:focus-visible{outline:none;box-shadow:var(--ae-ring-field)}"
+    },
+    {
+      "name": "Pane Bar",
+      "kind": "custom",
+      "refersTo": "pane-bar",
+      "description": "A pane's header line: trail, title, state; one height in every pane.",
+      "html": "<header class=\"ds-pane-bar\"><a href=\"#\">Projects</a><span>/</span><h1>Demo</h1><small>2 open</small></header>",
+      "css": ".ds-pane-bar{display:flex;align-items:baseline;gap:var(--ae-space-2);min-block-size:calc(var(--ae-control-size) + 2 * var(--ae-space-3));padding:var(--ae-space-3) var(--ae-space-5);box-shadow:inset 0 -1px 0 var(--ae-border);background:var(--ae-bg);color:var(--ae-text-muted);font:var(--ae-text-s) var(--ae-font-sans)}.ds-pane-bar a{color:var(--ae-text-muted)}.ds-pane-bar a:hover{color:var(--ae-text)}.ds-pane-bar h1{margin:0;color:var(--ae-text);font-size:var(--ae-text-l);font-weight:600}"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "custom",
+      "refersTo": "pane-heading",
+      "description": "Small-caps heading of a section, group, inspector or column.",
+      "html": "<h2 class=\"ds-pane-heading\">Details</h2>",
+      "css": ".ds-pane-heading{margin:0;font:560 var(--ae-text-xs) var(--ae-font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ae-text-muted)}"
+    },
+    {
+      "name": "Sidebar Module Link",
+      "kind": "nav",
+      "refersTo": "sidebar-link",
+      "description": "A module in the sidebar: icon in its hue, label, live figure.",
+      "html": "<nav class=\"ds-sidebar\"><a href=\"#\" aria-current=\"page\" style=\"--h:55\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path d=\"M2 3h12v8H6l-4 3z\"/></svg><span>Inbox</span><b>2</b></a><a href=\"#\" style=\"--h:350\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><circle cx=\"8\" cy=\"9\" r=\"4\"/><path d=\"M8 5V2M3 9H1m14 0h-2\"/></svg><span>Errors</span><b><i></i>2</b></a></nav>",
+      "css": ".ds-sidebar{display:grid;inline-size:16rem;font:var(--ae-text-m) var(--ae-font-sans)}.ds-sidebar a{display:flex;align-items:center;gap:var(--ae-space-3);padding:var(--ae-space-2) var(--ae-space-3);color:var(--ae-text);text-decoration:none}.ds-sidebar svg{color:oklch(0.72 0.15 var(--h))}.ds-sidebar a:hover{background:var(--ae-fill)}.ds-sidebar a[aria-current]{background:color-mix(in oklch,oklch(0.72 0.15 var(--h)) 14%,transparent);box-shadow:inset 2px 0 0 oklch(0.72 0.15 var(--h));color:oklch(0.78 0.13 var(--h))}.ds-sidebar a:focus-visible{outline:none;box-shadow:var(--ae-ring)}.ds-sidebar b{margin-inline-start:auto;display:flex;align-items:center;gap:var(--ae-space-2);font:400 var(--ae-text-s) var(--ae-font-mono);font-variant-numeric:tabular-nums}.ds-sidebar b i{inline-size:var(--ae-space-2);block-size:var(--ae-space-2);background:var(--ae-warning)}"
+    },
+    {
+      "name": "State Dot",
+      "kind": "chip",
+      "refersTo": "state-dot",
+      "description": "A square dot in its tone, always before its word.",
+      "html": "<span class=\"ds-state\"><i></i>Changes not published</span>",
+      "css": ".ds-state{display:inline-flex;align-items:center;gap:var(--ae-space-2);font:var(--ae-text-s) var(--ae-font-sans);color:var(--ae-text)}.ds-state i{flex:none;inline-size:var(--ae-space-2);block-size:var(--ae-space-2);background:var(--ae-warning);transition:background-color var(--ae-duration) ease}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Console",
+    "overview": "nexitas is the frame every module of the suite lives in: one dark working console, built entirely from aequitas (its classes, `data-*` variants, ARIA state and tokens). Nothing here redefines an aequitas token; nexitas chooses aequitas presets (`data-accent=\"graphite\"`, `data-density=\"compact\"`, dark by default) and adds, in `app/assets/nexitas.css`, only what aequitas lacks and every app shares, written in aequitas tokens. The colour, type and spacing values in the frontmatter are aequitas' own, resolved for the dark theme at compact density, so a reader can see them; the stylesheet always reads the `--ae-*` variable, never the literal.\n\nThe console is a set of panes that hold their place: the sidebar on the left, the page's pane in the middle, and an inspector pane on the right when an item or the page's settings are open. Panes are separated by 1px hairline seams on one ground, never by cards, gaps or shadows. The list stays where it is and the selected item opens beside it, so a module's item page is its list page with the inspector open. Density is compact because a console shows more rows, not more air.\n\nColour has two jobs and they never mix. A module's hue (one aequitas accent preset per module) says *where* you are: its sidebar icon, its current link, its primary button, its links. The state tones (success, warning, danger, info) say *what needs you*, as a small square dot or a word in that tone, always beside a word or a figure. Everything else is moon ink on night glass.",
+    "keyCharacteristics": [
+      "Dark first (the owner can switch to light or the system's theme); light is aequitas' light side of the same tokens.",
+      "Compact density, square corners throughout (aequitas' default radius of 0).",
+      "Sidebar, pane and inspector divided by hairline seams; header bars of one height so the seam under them runs straight across.",
+      "Small-caps headings for sidebar groups, sections, the inspector and table columns.",
+      "Mono, tabular figures for anything one could type into a terminal: ids, origins, URLs, keys, values, days, counts.",
+      "One accent hue per module; the core is graphite.",
+      "Glass only where something floats: menus, dialogs, the ⌘K palette.",
+      "One movement: the inspector eases in from its seam."
+    ],
+    "rules": [
+      {
+        "name": "The Two Jobs Rule",
+        "body": "A module's hue says where you are; a state tone says what needs you. A hue never reports state and a tone never marks a module.",
+        "section": "colors"
+      },
+      {
+        "name": "The Beside-a-Word Rule",
+        "body": "A state colour always sits next to the word or figure it qualifies (`<StateDot tone>3 new</StateDot>`, a sidebar figure with its dot). Colour alone never carries meaning.",
+        "section": "colors"
+      },
+      {
+        "name": "The Preset-Only Rule",
+        "body": "Hues come from aequitas accent presets named in app.config. No module writes an oklch value of its own.",
+        "section": "colors"
+      },
+      {
+        "name": "The Small-Caps Heading Rule",
+        "body": "Every heading inside a pane, group or table is the small-caps pane heading, and it is a real heading element that names what follows. It is never a decorative label over another heading.",
+        "section": "typography"
+      },
+      {
+        "name": "The Terminal Rule",
+        "body": "Anything a person could type into a terminal is mono; anything counted is tabular.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hold-Your-Place Rule",
+        "body": "The list never leaves its pane to show an item. The item opens in the inspector, and the item's URL renders the list too.",
+        "section": "layout"
+      },
+      {
+        "name": "The Seam-Not-Shadow Rule",
+        "body": "Panes divide by a hairline seam on one ground, never by shadow, gap or a card's fill.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Glass-Floats Rule",
+        "body": "Glass and blur only on what floats above the console; never on a docked pane.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** build from aequitas classes, `data-*` variants and ARIA state, and put in `nexitas.css` only what aequitas lacks and every app shares, in `--ae-*` tokens.",
+      "**Do** frame every page with AppPage and compose the page kit; add to the kit what a module lacks.",
+      "**Do** open an item in the inspector beside its list, and put the one destructive action alone at the pane's foot.",
+      "**Do** name a module's hue as an aequitas accent preset in app.config.",
+      "**Do** set ids, origins, URLs, keys, values and days in mono, and counts tabular."
+    ],
+    "donts": [
+      "**Don't** use cards, panels with their own fill, gaps between panes or drop shadows to divide the console; use seams.",
+      "**Don't** use colour on its own: a state tone sits beside its word, and a module's hue marks only that module.",
+      "**Don't** put glass or blur on a docked pane.",
+      "**Don't** hard-code a colour, radius, space or duration; read the aequitas token.",
+      "**Don't** put a DangerAction next to a primary button, or more than one primary in a view.",
+      "**Don't** hand-build a header, breadcrumb, alert, table frame, dot, aside, section heading, `h1` or `style=\"\"` in a page."
+    ]
+  }
+}

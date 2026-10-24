@@ -47,12 +47,14 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      // data-ae-manual: importing aequitas.js (setTheme) must not run its DOM-scanning init.
-      // Graphite keeps the accent neutral, so colour on screen only ever reports state.
+      // data-ae-manual: aequitas.js starts only once Vue has hydrated (plugins/aequitas.client.ts).
+      // Graphite is the core's accent; each module's section takes its own hue. Compact: a
+      // working console shows more rows, not more air.
       htmlAttrs: {
         lang: 'en',
         'data-ae-manual': '',
         'data-accent': 'graphite',
+        'data-density': 'compact',
       },
       link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     },

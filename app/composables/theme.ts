@@ -1,7 +1,8 @@
 type Mode = 'light' | 'dark' | 'auto'
 
-/** The theme as the server knows it: aequitas' setTheme() mirrors the choice into the `ae-theme` cookie. */
+/** The theme as the server knows it: aequitas' setTheme() mirrors the choice into the `ae-theme`
+ *  cookie. Dark until the owner picks another: the suite is a console, built dark first. */
 export function useThemeMode() {
   const cookie = useCookie<Mode | undefined>('ae-theme')
-  return useState<Mode>('theme', () => cookie.value ?? 'auto')
+  return useState<Mode>('theme', () => cookie.value ?? 'dark')
 }

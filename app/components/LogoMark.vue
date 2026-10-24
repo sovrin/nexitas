@@ -8,7 +8,7 @@
     height="1em"
     aria-hidden="true"
     focusable="false"
-    style="flex: none"
+    class="flex-none"
   >
     <path d="M1 5h8v6H1zM7 5h8v6H7z" fill="none" stroke="currentColor" stroke-width="2" />
   </svg>

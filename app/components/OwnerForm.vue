@@ -40,7 +40,9 @@ async function submit() {
     <div class="stack gap-6">
       <strong class="weight-600 cluster gap-2 flex-nowrap"><LogoMark />{{ name }}</strong>
       <div class="stack gap-3">
-        <h1 class="text-l weight-600">{{ setup ? 'Make yourself at home.' : 'Welcome back.' }}</h1>
+        <h1 class="text-2xl weight-600 tracking-tight leading-tight">
+          {{ setup ? 'Make yourself at home.' : 'Welcome back.' }}
+        </h1>
         <p class="text-muted">
           {{ setup ? text.setup : text.signIn }}
         </p>

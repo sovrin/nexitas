@@ -1,7 +1,7 @@
 // Every rule about what the core accepts lives here, shared by the pages and the server. Modules
 // keep their own rules in their own shared/contracts.ts and may build on these.
 import { z } from 'zod'
-import type { ModuleStatus } from './modules'
+import type { ActivityItem, ModuleStatus } from './modules'
 
 /** Scheme, host and port only, as a browser sends it in the Origin header. */
 export function isOrigin(value: string) {
@@ -78,6 +78,12 @@ export interface Project extends ProjectSettings {
 /** A project with what each module says about it, the modules that say nothing left out. */
 export interface ProjectSummary extends Project {
   status: ModuleStatus[]
+}
+
+/** What a project's modules say happened in it, newest first, each under its module's id. */
+export interface ProjectActivity {
+  since: number
+  items: (ActivityItem & { module: string })[]
 }
 
 /** A module in this build, as the Modules page shows it. */

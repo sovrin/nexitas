@@ -1,17 +1,98 @@
 <script setup lang="ts">
-import type { ProjectSummary } from '../../../../shared/contracts'
-import { errorMessage } from '../../../lib/format'
+import type { ProjectActivity, ProjectSummary } from '../../../../shared/contracts'
+import {
+  errorMessage,
+  formatAge,
+  formatClock,
+  formatDayName,
+  formatTime,
+  plural,
+} from '../../../lib/format'
 
 const id = useProject().id.value
 const { data: project, error, refresh } = await useFetch<ProjectSummary>(`/api/projects/${id}`)
 useLive(refresh)
-// Each switched-on module's part of the project, under its name and icon. The panels are global components,
-// so a name from the config resolves at runtime.
+// Each switched-on module's part of the project, under its name and icon, in its hue. The panels
+// are global components, so a name from the config resolves at runtime.
 const allPanels = useAppConfig()
   .nexitas.modules.filter((module) => module.panel)
-  .map((module) => ({ id: module.id, component: resolveComponent(module.panel!) }))
+  .map((module) => ({
+    id: module.id,
+    accent: module.accent,
+    component: resolveComponent(module.panel!),
+  }))
 const { enabled } = useModules()
 const panels = computed(() => allPanels.filter((panel) => enabled.value.has(panel.id)))
+
+// The project's story over the last two weeks, kept whole: what came after the owner last looked
+// stands out, a marker shows where they left off, and the rest stays readable below it. The
+// moment of the last visit lives in a cookie of theirs (nothing about anyone else); it stays
+// fixed for this visit, so live updates join the new part, and the next visit starts from now.
+const DAY = 24 * 60 * 60 * 1000
+const seen = useCookie<number | null>(`nexitas-seen-${id}`, {
+  sameSite: 'lax',
+  maxAge: 60 * 60 * 24 * 400,
+})
+const firstVisit = !seen.value
+const lastLooked = seen.value ?? Date.now() - 7 * DAY
+const { data: activity, refresh: refreshActivity } = await useFetch<ProjectActivity>(
+  `/api/projects/${id}/activity`,
+  { query: { since: Date.now() - 14 * DAY } },
+)
+useLive(refreshActivity)
+onMounted(() => (seen.value = Date.now()))
+
+const { modules } = useAppConfig().nexitas
+const accentOf = (module: string) => modules.find((known) => known.id === module)?.accent
+const fresh = computed(() => (activity.value?.items ?? []).filter((item) => item.at > lastLooked))
+// The story by UTC day, newest first. Events of one kind in a row from one module (four entries
+// published at once) fold into one line that names them all, never across the marker.
+type Event = ProjectActivity['items'][number] & { count: number; fresh: boolean }
+type Line = Event | { mark: true; at: number }
+const days = computed(() => {
+  const lines: Line[] = []
+  let marked = firstVisit
+  for (const item of activity.value?.items ?? []) {
+    const isFresh = item.at > lastLooked
+    if (!isFresh && !marked) {
+      if (fresh.value.length) lines.push({ mark: true, at: lastLooked })
+      marked = true
+    }
+    const last = lines.at(-1)
+    if (
+      last &&
+      !('mark' in last) &&
+      last.module === item.module &&
+      last.title === item.title &&
+      last.fresh === isFresh &&
+      formatDayName(last.at) === formatDayName(item.at)
+    ) {
+      last.count++
+      last.detail = [last.detail, item.detail].filter(Boolean).join(', ')
+    } else lines.push({ ...item, count: 1, fresh: isFresh })
+  }
+  const groups: { name: string; lines: Line[] }[] = []
+  for (const line of lines) {
+    const name = formatDayName(line.at)
+    const group = groups.at(-1)
+    if (group?.name === name) group.lines.push(line)
+    else groups.push({ name, lines: [line] })
+  }
+  return groups
+})
+const headline = computed(() => {
+  const count = firstVisit
+    ? (activity.value?.items ?? []).filter((item) => item.at > lastLooked).length
+    : fresh.value.length
+  const when = firstVisit ? 'this week' : 'since you last looked'
+  return count ? `${plural(count, 'change')} ${when}` : `Nothing new ${when}`
+})
+// Each module's state now, in its hue: the line under the headline.
+const states = computed(() =>
+  (project.value?.status ?? []).filter((status) =>
+    panels.value.some((p) => p.id === status.module),
+  ),
+)
 
 const savedNotice = ref(false)
 async function saved() {
@@ -36,10 +117,119 @@ async function remove() {
     :title="project?.name ?? id"
     :head="id"
     :trail="[{ label: 'Projects', to: '/' }]"
+    aside-title="Settings"
     failed="Could not load this project."
     :error="error"
   >
-    <template v-if="project" #actions>
+    <template v-if="project" #subtitle
+      ><span class="font-mono">{{ project.origins.join(' · ') }}</span></template
+    >
+    <AppAlert v-if="deleteError" title="Could not delete the project.">{{ deleteError }}</AppAlert>
+
+    <!-- The news first: what changed since the owner last looked, then each module's state now,
+         then the story of what happened, day by day. How to set the modules up waits below. -->
+    <div v-if="project" class="stack gap-6">
+      <AppLead :title="headline">
+        <template #meta>
+          <template v-if="firstVisit"
+            >The last two weeks below, from every module that is on.</template
+          >
+          <template v-else
+            >Last looked {{ formatAge(lastLooked) }},
+            <time :datetime="new Date(lastLooked).toISOString()">{{ formatTime(lastLooked) }}</time
+            >. The last two weeks below.</template
+          >
+        </template>
+        <ul
+          v-if="states.length"
+          class="cluster gap-5 text-s"
+          data-variant="plain"
+          aria-label="Modules now"
+        >
+          <li
+            v-for="state in states"
+            :key="state.module"
+            class="cluster gap-2"
+            :data-accent="accentOf(state.module)"
+          >
+            <ModuleLabel :module="state.module" class="weight-600" />
+            <StatusItems :items="state.items" />
+          </li>
+        </ul>
+      </AppLead>
+
+      <div v-if="days.length" class="stack gap-5">
+        <section v-for="day in days" :key="day.name" class="stack gap-3" :aria-label="day.name">
+          <h3 class="eyebrow">{{ day.name }}</h3>
+          <ol class="timeline">
+            <template v-for="(line, index) in day.lines" :key="index">
+              <!-- Where the owner left off: what is above came after. -->
+              <li v-if="'mark' in line" class="text-muted">
+                <time :datetime="new Date(line.at).toISOString()">{{ formatClock(line.at) }}</time>
+                <div class="text-s">You last looked here</div>
+              </li>
+              <li
+                v-else
+                :data-accent="accentOf(line.module)"
+                :class="{ 'text-muted': !line.fresh }"
+              >
+                <time :datetime="new Date(line.at).toISOString()">{{ formatClock(line.at) }}</time>
+                <div>
+                  <b class="cluster gap-2 flex-nowrap"
+                    ><ModuleLabel :module="line.module" icon-only /><NuxtLink
+                      v-if="line.to"
+                      :to="line.to"
+                      class="link"
+                      data-quiet
+                      >{{ line.title }}</NuxtLink
+                    ><template v-else>{{ line.title }}</template
+                    ><span v-if="line.count > 1" class="text-muted tabular">{{
+                      line.count
+                    }}</span></b
+                  >
+                  <p v-if="line.detail" class="break-words">{{ line.detail }}</p>
+                </div>
+              </li>
+            </template>
+          </ol>
+        </section>
+      </div>
+      <EmptyState v-else-if="panels.length">
+        Feedback, issues, entries and publishes show up here as they happen.
+      </EmptyState>
+    </div>
+
+    <EmptyState v-if="project && !panels.length">
+      No module is on. Switch one on under Modules to use it for this project.
+    </EmptyState>
+    <!-- Setting a module up is done once; it waits here, folded, under its name. -->
+    <AppSection v-if="project && panels.length" title="Set up">
+      <div>
+        <details
+          v-for="panel in panels"
+          :key="panel.id"
+          class="accordion"
+          :data-accent="panel.accent"
+        >
+          <summary><ModuleLabel :module="panel.id" /></summary>
+          <!-- Panels are set small here, so none sizes its own text. -->
+          <div class="text-s pb-4"><component :is="panel.component" :project="project" /></div>
+        </details>
+      </div>
+    </AppSection>
+
+    <template v-if="project" #aside>
+      <AppAlert v-if="savedNotice" tone="success" title="Saved."
+        >Every module uses the new settings from now on.</AppAlert
+      >
+      <ProjectForm
+        :key="JSON.stringify([project.name, project.origins])"
+        :project="project"
+        @saved="saved"
+      />
+    </template>
+    <template v-if="project" #danger>
+      <span>Removes the project and everything every module keeps for it.</span>
       <DangerAction
         label="Delete project"
         :title="`Delete ${id} and all it holds?`"
@@ -49,32 +239,6 @@ async function remove() {
         Removes the project and everything every module keeps for it. Its snippets stop working.
         This cannot be undone.
       </DangerAction>
-    </template>
-    <AppAlert v-if="deleteError" title="Could not delete the project.">{{ deleteError }}</AppAlert>
-    <!-- What the modules do for it takes the room; its own settings sit beside them. -->
-    <!-- One under the other: side by side, a short panel left a hole beside a tall one. -->
-    <div v-if="project" class="stack gap-6">
-      <AppSection v-for="panel in panels" :key="panel.id">
-        <template #title><ModuleLabel :module="panel.id" /></template>
-        <!-- Panels are set small here, so none sizes its own text. -->
-        <div class="text-s"><component :is="panel.component" :project="project" /></div>
-      </AppSection>
-      <EmptyState v-if="!panels.length">
-        No module is on. Switch one on under Modules to use it for this project.
-      </EmptyState>
-    </div>
-
-    <template v-if="project" #aside>
-      <AppSection title="Settings">
-        <AppAlert v-if="savedNotice" tone="success" title="Saved."
-          >Every module uses the new settings from now on.</AppAlert
-        >
-        <ProjectForm
-          :key="JSON.stringify([project.name, project.origins])"
-          :project="project"
-          @saved="saved"
-        />
-      </AppSection>
     </template>
   </AppPage>
 </template>

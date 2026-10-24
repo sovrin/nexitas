@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Project } from '../../shared/contracts'
+import { suggestProjectId } from '../lib/projects'
 
 /** Adds a project, or changes one: its name and the origins its pages are served from. What each
  *  module does for it is set on the project's page, in the module's panel. */
@@ -11,12 +12,7 @@ const id = ref(props.project?.id ?? '')
 const idTouched = ref(!!props.project)
 // A new project's id follows its name until it is edited by hand.
 watch(name, (value) => {
-  if (!idTouched.value)
-    id.value = value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^[^a-z]+|-+$/g, '')
-      .slice(0, 40)
+  if (!idTouched.value) id.value = suggestProjectId(value)
 })
 const origins = ref(props.project?.origins.join('\n') ?? '')
 
