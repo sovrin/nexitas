@@ -58,7 +58,8 @@ unprivileged user on Alpine with only the node binary.
 TLS and the public address belong to your reverse proxy: put it, or the network it shares, in an
 untracked `compose.override.yaml`. The proxy must append the caller's address to
 `X-Forwarded-For`: the rate limits count senders by its last entry, and keep addresses only in
-memory or as a keyed hash. Keep it from logging the modules' public routes (`/v1/…`), or it stores
+memory or as a keyed hash. The header counts only when the proxy reaches nexitas from the host or a
+private network (loopback, RFC 1918, IPv6 unique local); anyone else is counted by their own address. Keep it from logging the modules' public routes (`/v1/…`), or it stores
 the addresses nexitas drops. With Caddy, which logs nothing unless told to:
 
 ```

@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 import type { H3Event } from 'h3'
 import type { NexitasModule } from '../../shared/modules'
 import { enabledModuleIds, openDatabase, updateModules } from '../core/database'
-import { senderNetwork } from '../core/limits'
+import { isPrivateAddress, senderNetwork } from '../core/limits'
 
 const modules: NexitasModule[] = []
 let database: ReturnType<typeof openDatabase> | undefined
@@ -13,6 +13,11 @@ export function registerModule(module: NexitasModule) {
   if (database) throw new Error(`${module.id} was registered after the database opened.`)
   if (modules.some((known) => known.id === module.id))
     throw new Error(`${module.id} is registered twice.`)
+  // An open route returns before the owner's checks: one under /api, or a pattern that matches
+  // mid-path, would open the owner's API.
+  for (const { path } of module.publicRoutes ?? [])
+    if (typeof path === 'string' ? path.startsWith('/api/') : !path.source.startsWith('^\\/v1\\/'))
+      throw new Error(`${module.id}: public route ${path} must be anchored under /v1/.`)
   modules.push(module)
 }
 
@@ -56,12 +61,12 @@ export function nexitasOrigin() {
 }
 
 /** Who is asking, for the in-memory limits only. The proxy in front appends the address it saw
- *  as the last X-Forwarded-For entry; earlier ones come from the client. */
+ *  as the last X-Forwarded-For entry; earlier ones come from the client. The header counts only
+ *  from a proxy on this host or its private network: a caller reaching the app directly could
+ *  write any address there, and pass every limit with a new one each time. */
 // shortcut: assumes exactly one proxy in front (Caddy, nginx); behind a CDN as well, count hops.
 export function requestSender(event: H3Event) {
-  return senderNetwork(
-    getHeader(event, 'x-forwarded-for')?.split(',').at(-1)?.trim() ||
-      getRequestIP(event) ||
-      'unknown',
-  )
+  const peer = getRequestIP(event)
+  const forwarded = peer && isPrivateAddress(peer) ? getHeader(event, 'x-forwarded-for') : undefined
+  return senderNetwork(forwarded?.split(',').at(-1)?.trim() || peer || 'unknown')
 }

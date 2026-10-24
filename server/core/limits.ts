@@ -25,6 +25,15 @@ export function createLimiter(limit: number, windowMs: number) {
   }
 }
 
+/** Loopback or a private network (RFC 1918, IPv6 unique local), where a proxy of the owner's own
+ *  sits: the host, or a Docker network. */
+export function isPrivateAddress(address: string) {
+  const plain = address.toLowerCase().replace(/^::ffff:(?=\d+\.)/, '')
+  if (plain === '::1' || /^f[cd]/.test(plain)) return true
+  const [a, b] = plain.split('.').map(Number)
+  return a === 127 || a === 10 || (a === 172 && b! >= 16 && b! <= 31) || (a === 192 && b === 168)
+}
+
 /** The network a sender is counted by: an IPv6 address cut to its /64, which one connection
  *  usually holds whole (otherwise every request could come from a new address); an IPv4
  *  address, also one mapped into IPv6, as it is. */

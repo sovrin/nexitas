@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs'
+import { chmodSync, mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import type { NexitasModule } from '../../shared/modules'
@@ -25,6 +25,8 @@ export const core: NexitasModule = {
 export function openDatabase(file: string, modules: readonly NexitasModule[] = []) {
   mkdirSync(dirname(file), { recursive: true, mode: 0o700 })
   const db = new DatabaseSync(file)
+  // SQLite gives its WAL files the database's mode, so this keeps them the owner's too.
+  chmodSync(file, 0o600)
   db.exec('PRAGMA busy_timeout = 5000; PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;')
   try {
     transaction(db, () => {

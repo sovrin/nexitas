@@ -40,7 +40,8 @@ export interface NexitasModule {
 
 /** A public route. Matched on the path without its query, before the route's own handler. */
 export interface PublicRoute {
-  /** The exact path, or a pattern for one with parameters. */
+  /** The exact path, or a pattern for one with parameters, anchored: `/^\/v1\/…/`. Never under
+   *  /api, which is the owner's. */
   path: string | RegExp
   /** The largest body it accepts, in bytes. 64 kB when left out. */
   maxBody?: number

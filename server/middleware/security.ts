@@ -24,6 +24,8 @@ export default defineEventHandler((event) => {
   setHeader(event, 'X-Content-Type-Options', 'nosniff')
   setHeader(event, 'X-Frame-Options', 'DENY')
   setHeader(event, 'Referrer-Policy', 'same-origin')
+  if (nexitasOrigin().startsWith('https:'))
+    setHeader(event, 'Strict-Transport-Security', 'max-age=31536000')
   // shortcut: no script-src, since Nuxt inlines its config script; add nonces if pages ever
   // render HTML from what others send.
   setHeader(
@@ -31,7 +33,9 @@ export default defineEventHandler((event) => {
     'Content-Security-Policy',
     "object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
   )
-  const path = event.path.split('?')[0]!
+  // The router drops a trailing slash before it finds the handler; match the same path, or
+  // /v1/…/feedback/ would reach a public route's handler without its guard.
+  const path = event.path.split('?')[0]!.replace(/\/$/, '') || '/'
   const reads = ['GET', 'HEAD', 'OPTIONS'].includes(event.method)
   const open = findPublicRoute(path)
   // A module the owner switched off answers nothing, as if it were not there: JSON for its API and
