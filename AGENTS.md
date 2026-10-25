@@ -43,7 +43,7 @@ Use these; don't write a module's own. Something two modules write alike belongs
   `createLimiter`, `senderNetwork` (`core/limits`).
 - Pages: `useProject()`, `useLive(refresh)`, `useModules()`, `useSubmit()` (auto-imported);
   `useProjectFetch()`, the page kit (see UI), `<FormIssues>`, `<EmbedCode>`, `<CopyButton>`,
-  `<ModuleLabel>`, `<StatusItems>`; and every count, day, time and age through
+  `<ModuleLabel>`, `<StatusItems>`, `<ModuleStart>`, `<SetupLink>` with `useSetup()`; and every count, day, time and age through
   `#nexitas/app/lib/format` (`plural`, `formatCount`, `formatAge`, `formatTime`, `formatDay`,
   `formatDelta`, `errorMessage`), never a module's own `Intl` or `toLocaleString`.
 - A module's server parts: a Nitro plugin that calls `registerModule(...)`, the module in
@@ -65,7 +65,7 @@ Use these; don't write a module's own. Something two modules write alike belongs
   Panes divide by hairline seams, never by shadow or cards; glass only where something floats
   (menus, dialogs, the palette).
 - Colour: the core is graphite; each module names an aequitas accent preset in app.config
-  (`accent`), and its section, panel and sidebar entry take that hue. State tones (success,
+  (`accent`), and its section and sidebar entry take that hue. State tones (success,
   warning, danger) stay separate from the hue and always sit beside a word.
 - Pages are built from the core's page kit (app/components), never from the markup it draws, so
   every module looks alike and changes with the core. `node scripts/drift.ts` (in `pnpm lint`)
@@ -106,10 +106,14 @@ Use these; don't write a module's own. Something two modules write alike belongs
     dialog only adds what that line doesn't say ("This cannot be undone."), never repeats it.
     `pending` while it runs; its error is an `<AppAlert>` in the `danger` slot beside the button,
     not at the top of the pane.
-  - A panel on a project's overview is setup only (set small by the page, never by itself): its
-    snippet, a link to its settings, or `<PanelStart>` while it does nothing for the project. No
-    counts, status lines or StateDots: the overview's "Modules now" row and the sidebar's figure
-    tell the module's state.
+  - A module is set up on its own first page, never on the overview. While it does nothing for the
+    project, `<ModuleStart>` takes the content's place. Once started, `<SetupLink>` in `actions`
+    opens its setup (`useSetup()`, `?setup`) in the inspector, `aside-title="Setup"`, closing to
+    the page: everything to connect a site or app (snippets, tokens, access) and the module's
+    settings, with what cannot be undone (replace a token) in `danger`; deleting one of several
+    things it lists (a stack) stays beside that thing. Its
+    `projectStatus` says "Not set up", linking to that page, so the overview's "Modules now" row
+    shows it.
   - `<AsideLayout>` for a component that needs a column beside it (a form's live preview).
   - A module's own stylesheet only for what it alone draws (a chart).
   - A static page beside a `[param]` page is named with a leading underscore: `_new.vue`.

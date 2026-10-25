@@ -179,7 +179,6 @@ export default defineAppConfig({
         label: 'Usage',
         description: 'How your sites are used: event counts, nothing about visitors.',
         icon: 'bar-chart',
-        panel: 'CensitasProject',
       },
     ],
     nav: [{ to: '/sites', label: 'Usage', module: 'censitas' }],
@@ -191,6 +190,10 @@ The entry in `modules` is how the shell tells the modules apart: every line a mo
 the overview, the status line and the project page, stands under its label and icon, and its nav
 entry carries the icon. The description stands beside its switch at setup and under Modules.
 Give each module an aequitas icon no other module uses.
+
+A module is set up on its own first page: `<ModuleStart>` while it does nothing for the project,
+then a Setup button (`<SetupLink>`) that opens its snippets, tokens and settings beside its content.
+The project's overview only tells its state, "Not set up" included.
 
 A project holds everything, and a module's part of it lives under it:
 

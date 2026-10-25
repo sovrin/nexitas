@@ -119,13 +119,10 @@ export interface ModuleEntry {
   description: string
   /** An aequitas icon (`data-icon`), different from every other module's. */
   icon: string
-  /** An aequitas accent preset (`data-accent`) for the module's section: its pages, its panel and
-   *  its place in the sidebar take this hue, the core's own pages stay graphite. Different from
+  /** An aequitas accent preset (`data-accent`) for the module's section: its pages and its place
+   *  in the sidebar take this hue, the core's own pages stay graphite. Different from
    *  every other module's; left out, the module is graphite too. */
   accent?: AccentPreset
-  /** Its component on a project's page, given the project as `project`, under its name and icon.
-   *  Put it in the module's app/components/global/, so it resolves by name. */
-  panel?: string
 }
 
 /** The page half: what an app or module puts into app.config under `nexitas`. Nav entries and

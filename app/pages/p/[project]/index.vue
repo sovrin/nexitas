@@ -13,17 +13,8 @@ const { id: openId, refresh: refreshProjects } = useProject()
 const id = openId.value
 // The sidebar reads the same summary, under the same key: fetched once for both.
 const { data: project, error, refresh } = await useProjectSummary()
-// Each switched-on module's part of the project, under its name and icon, in its hue. The panels
-// are global components, so a name from the config resolves at runtime.
-const allPanels = useAppConfig()
-  .nexitas.modules.filter((module) => module.panel)
-  .map((module) => ({
-    id: module.id,
-    accent: module.accent,
-    component: resolveComponent(module.panel!),
-  }))
+// Setting a module up is done on its own page (its Setup); here only its state shows.
 const { enabled } = useModules()
-const panels = computed(() => allPanels.filter((panel) => enabled.value.has(panel.id)))
 
 // The project's story over the last two weeks, kept whole: what came after the owner last looked
 // stands out, a marker shows where they left off, and the rest stays readable below it. The
@@ -89,11 +80,10 @@ const headline = computed(() => {
     ? `${plural(fresh.value.length, 'change')} ${when}`
     : `Nothing new ${when}`
 })
-// Each module's state now, in its hue: the line under the headline.
+// Each module's state now, in its hue: the line under the headline. One not set up for the
+// project says so, and links to its page.
 const states = computed(() =>
-  (project.value?.status ?? []).filter((status) =>
-    panels.value.some((p) => p.id === status.module),
-  ),
+  (project.value?.status ?? []).filter((status) => enabled.value.has(status.module)),
 )
 
 // "Saved." stands until the settings are touched again.
@@ -136,7 +126,7 @@ const settingsOpen = computed(() => route.query.settings !== undefined)
     :error="error"
   >
     <!-- The news first: what changed since the owner last looked, then each module's state now,
-         then the story of what happened, day by day. How to set the modules up waits below. -->
+         then the story of what happened, day by day. -->
     <div v-if="project" class="stack gap-6">
       <AppLead :title="headline">
         <template #meta>
@@ -200,29 +190,13 @@ const settingsOpen = computed(() => route.query.settings !== undefined)
           </ol>
         </AppSection>
       </div>
-      <EmptyState v-else-if="panels.length">
+      <EmptyState v-else-if="enabled.size">
         What the modules do shows up here as it happens.
       </EmptyState>
-
-      <EmptyState v-if="!panels.length">
+      <EmptyState v-else>
         No module is on. Switch one on under <NuxtLink to="/modules" class="link">Modules</NuxtLink>
         to use it for this project.
       </EmptyState>
-      <!-- Setting a module up is done once; it waits here, folded, under its name. -->
-      <AppSection v-else title="Set up">
-        <div>
-          <details
-            v-for="panel in panels"
-            :key="panel.id"
-            class="accordion"
-            :data-accent="panel.accent"
-          >
-            <summary><ModuleLabel :module="panel.id" /></summary>
-            <!-- Panels are set small here, so none sizes its own text. -->
-            <div class="text-s pb-4"><component :is="panel.component" :project="project" /></div>
-          </details>
-        </div>
-      </AppSection>
     </div>
 
     <template v-if="project" #actions>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-/** <PanelStart label="Start content" failed="Could not start content." :start="start">
- *    No content yet. Start, and you get collections to write in.</PanelStart>
- *  A module's panel for a project it does nothing for yet: what starting gives, and the button.
- *  `start` makes it (a request); the panel refreshes itself after. */
+/** <ModuleStart label="Start content" failed="Could not start content." :start="start">
+ *    No content yet. Start, and you get collections to write in.</ModuleStart>
+ *  A module's first page for a project it does nothing for yet, in place of its content: what
+ *  starting gives, and the button. `start` makes it (a request); the page refreshes itself after. */
 const props = defineProps<{ label: string; failed: string; start: () => Promise<unknown> }>()
 const { pending, error, submit } = useSubmit()
 </script>

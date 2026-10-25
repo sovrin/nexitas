@@ -1,6 +1,6 @@
 import type { NexitasAppConfig } from '../shared/modules'
 
-// The shell's own part. A module adds its name, icon, panel and nav entries in its own app.config.ts
+// The shell's own part. A module adds its name, icon and nav entries in its own app.config.ts
 // under `nexitas`; nexitas is always the app, so these texts and the projects section come first.
 export default defineAppConfig({
   nexitas: {
