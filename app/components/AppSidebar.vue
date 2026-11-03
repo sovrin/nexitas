@@ -11,8 +11,12 @@ import { version } from '~~/package.json'
 const emit = defineEmits<{ search: []; signOut: [] }>()
 const route = useRoute()
 const theme = useThemeMode()
-const { name } = useRuntimeConfig().public.nexitas
-const { project, projects, sections } = useSections()
+const { name, versions } = useRuntimeConfig().public.nexitas
+const { project, projects, sections, current } = useSections()
+// The generated config type knows each module by name; the open one is any of them.
+const moduleVersion = computed(
+  () => current.value && (versions as Record<string, string>)[current.value.module],
+)
 const open = computed(() => projects.value?.find((known) => known.id === project.value))
 // What each module says about the open project; its reading is the item marked `figure`.
 const { data: summary } = await useProjectSummary()
@@ -107,7 +111,18 @@ const at = (path: string) => (route.path === path ? 'page' : undefined)
     <footer class="stack gap-3">
       <ThemeSwitch v-model="theme" />
       <div class="cluster justify-between gap-2 text-s">
-        <span class="font-mono text-muted sidebar-label">v{{ version }}</span>
+        <span class="cluster gap-3 font-mono text-muted sidebar-label"
+          ><span>v{{ version }}</span
+          ><span v-if="current && moduleVersion" aria-hidden="true">·</span
+          ><span
+            v-if="current && moduleVersion"
+            class="cluster gap-1"
+            :data-accent="current.accent"
+            :title="current.label"
+            ><i class="icon" :data-icon="current.icon" aria-hidden="true"></i
+            ><span class="sr-only">{{ current.label }}</span> v{{ moduleVersion }}</span
+          ></span
+        >
         <button type="button" class="link" @click="emit('signOut')">Sign out</button>
       </div>
     </footer>

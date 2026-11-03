@@ -182,9 +182,9 @@
   }
 }
 
-/* A module's place in the sidebar carries its hue in the icon; its current edge and tint come
-   from the same data-accent. */
-.sidebar a[data-accent] > .icon {
+/* A module's place in the sidebar carries its hue in the icon, as does its version in the foot;
+   its current edge and tint come from the same data-accent. */
+.sidebar [data-accent] > .icon {
   color: var(--ae-accent);
 }
 

@@ -23,6 +23,12 @@ const modules = Object.keys(manifest).map((id) => {
     throw new Error(`.modules/${id} is missing. Run \`node scripts/modules.ts\` first.`)
   return dir
 })
+const versions: Record<string, string> = Object.fromEntries(
+  Object.keys(manifest).map((id) => [
+    id,
+    JSON.parse(readFileSync(resolve(root, '.modules', id, 'package.json'), 'utf8')).version,
+  ]),
+)
 
 export default defineNuxtConfig({
   extends: modules,
@@ -45,7 +51,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // The install's name: shown in the shell, and the prefix of its environment variables
     // (NEXITAS_DATA_DIR, …) and its database file (nexitas.sqlite).
-    public: { nexitas: { name: 'nexitas' } },
+    // Each module's version, from its package.json (bumped by its release PR), for the sidebar.
+    public: { nexitas: { name: 'nexitas', versions } },
   },
   app: {
     head: {
