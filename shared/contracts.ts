@@ -92,6 +92,8 @@ export interface ModuleSwitch {
   enabled: boolean
   /** It has tables, and maybe data, kept while it is off. */
   hasData: boolean
+  /** The capabilities it provides (see capabilities.ts). */
+  provides: string[]
 }
 
 export const moduleSwitchSchema = z.object({ enabled: z.boolean() }).strict()

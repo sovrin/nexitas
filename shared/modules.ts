@@ -7,6 +7,7 @@
 // half goes into app.config under `nexitas`.
 import type { H3Event } from 'h3'
 import type { DatabaseSync } from 'node:sqlite'
+import type { Capabilities } from './capabilities'
 
 /** The server half of a module. */
 export interface NexitasModule {
@@ -24,6 +25,9 @@ export interface NexitasModule {
   /** The largest body, in bytes, a write to its own paths accepts, such as a long entry. 64 kB
    *  when left out. Public routes set theirs on the route. */
   maxBody?: number
+  /** Its own writes may also send raw bytes (application/octet-stream), such as an upload, read
+   *  as a stream instead of as JSON. Still the owner's, from the app's origin, like JSON. */
+  rawBody?: boolean
   /** Runs once at start and every hour while the module is on, such as a cleanup. */
   hourly?: (db: DatabaseSync) => void
   /** What this module says about one project: on the overview, the project's page, and the
@@ -36,6 +40,8 @@ export interface NexitasModule {
   /** Removes what this module keeps for a project. Runs in the core's transaction, before the
    *  project itself goes. */
   deleteProject?: (db: DatabaseSync, projectId: string) => void
+  /** What it offers other modules (see capabilities.ts), each capability by one module only. */
+  provides?: Partial<Capabilities>
 }
 
 /** A public route. Matched on the path without its query, before the route's own handler. */

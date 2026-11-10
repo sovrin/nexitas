@@ -14,6 +14,9 @@ adds only what is its own, and points here for the rest.
   `node scripts/modules.ts`, never discovered. Every install switches on the ones it uses. They plug in only
   through the interfaces in `shared/modules.ts`; change those additively, the modules depend on
   them.
+- A module that uses another's feature does it through a capability (`shared/capabilities.ts`):
+  the provider names it in `provides`, the user asks with `capability(name)` or
+  `useCapability(name)` and works without it. Never an import from one module into another.
 - A project holds everything. A module's pages are in `app/pages/p/[project]/` and read it with
   `useProject()`; its API is in `server/api/p/[project]/` and reads it with `requestProject(event)`,
   which the core resolves (or 404s) once. Never a `?project=` query, never another id standing in
@@ -35,13 +38,15 @@ adds only what is its own, and points here for the rest.
 Use these; don't write a module's own. Something two modules write alike belongs on this list.
 
 - Server, through `#nexitas/server/...`: `requestProject(event)` (`utils/projects`);
-  `nexitasDatabase()`, `nexitasEnv(name)`, `requestSender(event)` (`utils/nexitas`);
+  `nexitasDatabase()`, `nexitasEnv(name)`, `requestSender(event)`, `capability(name)`
+  (`utils/nexitas`);
   `announceChange()`, `pacedAnnouncer(ms)` (`utils/changes`); `invalid(zodError | issues)`
   (`utils/invalid`); `projectCors` and `readOnlyCors` as a public route's guard (`utils/cors`);
   `requireBearer(event, token)` (`utils/auth`); `newToken(prefix)`, `tokensMatch` (`core/auth`);
   `transaction(db, fn)` (`core/database`); `projectAllows`, `getProject` (`core/projects`);
   `createLimiter`, `senderNetwork` (`core/limits`).
-- Pages: `useProject()`, `useLive(refresh)`, `useModules()`, `useSubmit()` (auto-imported);
+- Pages: `useProject()`, `useLive(refresh)`, `useModules()`, `useCapability(name)`, `useSubmit()`
+  (auto-imported);
   `useProjectFetch()`, the page kit (see UI), `<FormIssues>`, `<EmbedCode>`, `<CopyButton>`,
   `<ModuleLabel>`, `<StatusItems>`, `<ModuleStart>`, `<SetupLink>` with `useSetup()`; and every count, day, time and age through
   `#nexitas/app/lib/format` (`plural`, `formatCount`, `formatAge`, `formatTime`, `formatDay`,

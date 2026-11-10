@@ -17,6 +17,7 @@ a click away, and the overview shows what changed on each, at a glance.
 | [veritas](https://github.com/sovrin/veritas)     | Content      | collections and entries per project, delivered to your sites as JSON            |
 | [erratas](https://github.com/sovrin/erratas)     | Errors       | what breaks in your apps, grouped into issues, with the stack trace             |
 | [linguitas](https://github.com/sovrin/linguitas) | Translations | texts per language, checked for what is missing or stale, and published as JSON |
+| [repositas](https://github.com/sovrin/repositas) | Files        | uploaded images and documents per project, served at a public address           |
 
 Every module in the build is off until you switch it on: at setup, or later under Modules. Off, a
 module runs nothing and answers nothing (its pages and routes are 404, its hourly work stops, the
@@ -162,11 +163,19 @@ export default defineNitroPlugin(() =>
 - **`paths`**: every prefix it serves, pages and `/api` alike, so they answer 404 while it is off.
   A page in a project, `/p/<id>/sites`, counts as `/sites`. Its static files (a script in
   `public/`) still load, but find nothing to call.
+- **`maxBody`** and **`rawBody`**: the largest write to its own paths (64 kB when left out), and
+  whether those writes may send raw bytes (`application/octet-stream`) besides JSON, read as a
+  stream: an upload.
 - **`hourly`**: work such as a cleanup, run at start and every hour while it is on. A module keeps
   no timers of its own.
 - **`projectStatus`** and **`deleteProject`**: its line about one project, on the overview, the
   project's page and the status line while the project is open; and removing what it keeps for
   one, in the core's transaction.
+- **`provides`**: what it offers other modules, by a name in `shared/capabilities.ts`, such as
+  repositas' `files`. Another module asks with `capability('files')` on the server and
+  `useCapability('files')` on its pages, and gets nothing while no switched-on module provides it,
+  so it must work without: veritas offers image fields only then. The contract lives in nexitas,
+  so neither module imports the other; a new capability is a new entry there.
 
 The page half goes into `app/app.config.ts`:
 
