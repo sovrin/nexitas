@@ -20,7 +20,8 @@ interface Crumb {
  *  by the item in hand's own name (`aside-name`, with `aside-mono` for an identifier):
  *  <AppPage title="Translations" :aside-name="key" aside-mono>. An inspector that can be closed
  *  (an item, settings opened on demand) names where closing goes (`aside-close`): a ✕ in its
- *  header, and Escape.
+ *  header, and Escape. An item too big for the inspector (a long text to write) opens in a dialog
+ *  over the page instead (`aside-as="dialog"`), with the same header, close and `danger`.
  *  Slots: default, `subtitle`, `actions`, `lead`, `filters`, `aside`, `danger`. */
 const props = defineProps<{
   title: string
@@ -40,6 +41,8 @@ const props = defineProps<{
   asideMono?: boolean
   /** Where closing the inspector goes: the list without its item, the page without its settings. */
   asideClose?: RouteLocationRaw
+  /** Open the aside as a dialog over the page, wide, rather than as the pane beside it. */
+  asideAs?: 'dialog'
   /** What failed, for the load error: "Could not load the inbox." */
   failed?: string
   retry?: () => unknown
@@ -62,9 +65,27 @@ const crumbs = computed((): Crumb[] =>
     ? [{ label: section.value.label, to: section.value.href }, ...(props.trail ?? [])]
     : [...(props.trail ?? [])],
 )
-// A function, not a computed: slots are not reactive, so a computed would miss an aside that a
-// page adds on a new address (?setup) until something else changed.
-const inspector = () => !!slots.aside && !props.error
+// Functions, not computeds: slots are not reactive, so a computed would miss an aside that a page
+// adds on a new address (?setup) until something else changed.
+const aside = () => !!slots.aside && !props.error
+const inspector = () => aside() && props.asideAs !== 'dialog'
+const dialog = () => aside() && props.asideAs === 'dialog'
+// The dialog is open exactly while the page has its item: the address opens and closes it.
+const dialogEl = useTemplateRef<HTMLDialogElement>('dialogEl')
+watch(
+  dialogEl,
+  (el) => {
+    if (el && !el.open) el.showModal()
+  },
+  { flush: 'post' },
+)
+// Escape closes it the way the ✕ does, through the address, so the browser's close never leaves
+// the item on a page that no longer shows it.
+function onCancel(event: Event) {
+  if (!props.asideClose) return
+  event.preventDefault()
+  navigateTo(props.asideClose)
+}
 // Escape closes the inspector, unless something else that is open (a dialog, a menu) takes it.
 function onKey(event: KeyboardEvent) {
   if (event.key !== 'Escape' || event.defaultPrevented || !props.asideClose || !inspector()) return
@@ -129,13 +150,21 @@ useHead({
           <div v-else class="stack gap-5"><slot /></div>
         </div>
 
-        <footer v-if="slots.danger && !inspector() && !error" class="danger-zone">
+        <footer v-if="slots.danger && !aside() && !error" class="danger-zone">
           <slot name="danger" />
         </footer>
       </div>
     </div>
 
-    <aside v-if="inspector()" class="inspector" :aria-label="asideName ?? asideTitle ?? 'Details'">
+    <component
+      :is="dialog() ? 'dialog' : 'aside'"
+      v-if="aside()"
+      :ref="dialog() ? 'dialogEl' : undefined"
+      :class="dialog() ? 'p-0' : 'inspector'"
+      :data-size="dialog() ? 'l' : undefined"
+      :aria-label="asideName ?? asideTitle ?? 'Details'"
+      @cancel="onCancel"
+    >
       <header class="pane-bar hairline-b px-5 gap-3">
         <h2
           v-if="asideName"
@@ -159,6 +188,6 @@ useHead({
         <slot name="aside" />
         <footer v-if="slots.danger" class="danger-zone"><slot name="danger" /></footer>
       </div>
-    </aside>
+    </component>
   </div>
 </template>
