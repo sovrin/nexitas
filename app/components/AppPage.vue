@@ -65,9 +65,11 @@ const crumbs = computed((): Crumb[] =>
     ? [{ label: section.value.label, to: section.value.href }, ...(props.trail ?? [])]
     : [...(props.trail ?? [])],
 )
-const aside = computed(() => !!slots.aside && !props.error)
-const inspector = computed(() => aside.value && props.asideAs !== 'dialog')
-const dialog = computed(() => aside.value && props.asideAs === 'dialog')
+// Functions, not computeds: slots are not reactive, so a computed would miss an aside that a page
+// adds on a new address (?setup) until something else changed.
+const aside = () => !!slots.aside && !props.error
+const inspector = () => aside() && props.asideAs !== 'dialog'
+const dialog = () => aside() && props.asideAs === 'dialog'
 // The dialog is open exactly while the page has its item: the address opens and closes it.
 const dialogEl = useTemplateRef<HTMLDialogElement>('dialogEl')
 watch(
@@ -86,8 +88,7 @@ function onCancel(event: Event) {
 }
 // Escape closes the inspector, unless something else that is open (a dialog, a menu) takes it.
 function onKey(event: KeyboardEvent) {
-  if (event.key !== 'Escape' || event.defaultPrevented || !props.asideClose || !inspector.value)
-    return
+  if (event.key !== 'Escape' || event.defaultPrevented || !props.asideClose || !inspector()) return
   if (document.querySelector('dialog[open], [popover]:popover-open')) return
   navigateTo(props.asideClose)
 }
@@ -106,8 +107,8 @@ useHead({
        Both open with a bar of one height, so their seam runs straight across. -->
   <div
     class="shell"
-    :data-inspector="inspector ? '' : undefined"
-    :data-closable="inspector && asideClose ? '' : undefined"
+    :data-inspector="inspector() ? '' : undefined"
+    :data-closable="inspector() && asideClose ? '' : undefined"
     :data-accent="section?.accent"
   >
     <div class="main">
@@ -149,18 +150,18 @@ useHead({
           <div v-else class="stack gap-5"><slot /></div>
         </div>
 
-        <footer v-if="slots.danger && !aside && !error" class="danger-zone">
+        <footer v-if="slots.danger && !aside() && !error" class="danger-zone">
           <slot name="danger" />
         </footer>
       </div>
     </div>
 
     <component
-      :is="dialog ? 'dialog' : 'aside'"
-      v-if="aside"
-      :ref="dialog ? 'dialogEl' : undefined"
-      :class="dialog ? 'p-0' : 'inspector'"
-      :data-size="dialog ? 'l' : undefined"
+      :is="dialog() ? 'dialog' : 'aside'"
+      v-if="aside()"
+      :ref="dialog() ? 'dialogEl' : undefined"
+      :class="dialog() ? 'p-0' : 'inspector'"
+      :data-size="dialog() ? 'l' : undefined"
       :aria-label="asideName ?? asideTitle ?? 'Details'"
       @cancel="onCancel"
     >
