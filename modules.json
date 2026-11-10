@@ -3,5 +3,6 @@
   "censitas": "github:sovrin/censitas#master",
   "veritas": "github:sovrin/veritas#master",
   "erratas": "github:sovrin/erratas#master",
-  "linguitas": "github:sovrin/linguitas#master"
+  "linguitas": "github:sovrin/linguitas#master",
+  "repositas": "github:sovrin/repositas#master"
 }

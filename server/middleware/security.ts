@@ -64,11 +64,11 @@ export default defineEventHandler((event) => {
         statusCode: 403,
         statusMessage: `This request did not come from ${nexitasName()}.`,
       })
-    // A DELETE carries no body to type.
-    if (
-      event.method !== 'DELETE' &&
-      !getHeader(event, 'content-type')?.startsWith('application/json')
-    )
+    // A DELETE carries no body to type. JSON, or raw bytes for a module that takes them: neither
+    // is a type a form on another site can send without a preflight.
+    const type = getHeader(event, 'content-type') ?? ''
+    const raw = owner?.rawBody && type === 'application/octet-stream'
+    if (event.method !== 'DELETE' && !type.startsWith('application/json') && !raw)
       throw createError({ statusCode: 415, statusMessage: 'Send application/json.' })
   }
   if (!OPEN_API.has(path)) requireOwner(event)

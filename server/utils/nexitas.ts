@@ -1,5 +1,6 @@
 import { resolve } from 'node:path'
 import type { H3Event } from 'h3'
+import type { Capabilities } from '../../shared/capabilities'
 import type { NexitasModule } from '../../shared/modules'
 import { enabledModuleIds, openDatabase, updateModules } from '../core/database'
 import { isPrivateAddress, senderNetwork } from '../core/limits'
@@ -18,6 +19,10 @@ export function registerModule(module: NexitasModule) {
   for (const { path } of module.publicRoutes ?? [])
     if (typeof path === 'string' ? path.startsWith('/api/') : !path.source.startsWith('^\\/v1\\/'))
       throw new Error(`${module.id}: public route ${path} must be anchored under /v1/.`)
+  for (const name of Object.keys(module.provides ?? {})) {
+    const other = modules.find((known) => known.provides && name in known.provides)
+    if (other) throw new Error(`${module.id}: ${other.id} provides ${name} already.`)
+  }
   modules.push(module)
 }
 
@@ -28,6 +33,12 @@ export const nexitasModules = (): readonly NexitasModule[] => modules
 export function enabledModules(): NexitasModule[] {
   const on = enabledModuleIds(nexitasDatabase())
   return modules.filter((module) => on.has(module.id))
+}
+
+/** What a switched-on module provides under `name`, or undefined: the module asking must work
+ *  without it. */
+export function capability<K extends keyof Capabilities>(name: K): Capabilities[K] | undefined {
+  return enabledModules().find((module) => module.provides?.[name])?.provides?.[name]
 }
 
 /** The app's name, as its nuxt.config sets it. */

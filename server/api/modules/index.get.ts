@@ -11,5 +11,6 @@ export default defineEventHandler((): ModuleSwitch[] => {
     id: module.id,
     enabled: on.has(module.id),
     hasData: installed.has(module.id),
+    provides: Object.keys(module.provides ?? {}),
   }))
 })
