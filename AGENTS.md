@@ -90,6 +90,8 @@ Use these; don't write a module's own. Something two modules write alike belongs
     a slug). Nothing under the header repeats the name.
   - A list and its item: the list stays in the pane and the item opens in the inspector, so the
     item's page renders the list too (`/feedback/<id>` is the inbox with that entry beside it).
+    An item too wide for the inspector (a long text with its toolbar) opens in a dialog over the
+    list instead, `aside-as="dialog"`: the same aside, address and close, at the container's width.
   - `useProjectFetch('/feedback')` reads the project's API and keeps the page live (`live: false`
     for a form a refresh would reset).
   - `<AppLead title>` opens the project's overview and every module's first page: what needs the
