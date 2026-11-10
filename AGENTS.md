@@ -22,8 +22,9 @@ adds only what is its own, and points here for the rest.
   which the core resolves (or 404s) once. Never a `?project=` query, never another id standing in
   for the project; every query, one item's included, is scoped by it. Nothing spans projects but
   the Projects page.
-- Import by relative path, here and in the modules: in a layer, `~` and `#shared` resolve against
-  the app. Modules reach the core through `#nexitas/...`.
+- In a layer, `~` and `#shared` resolve against the app, so modules don't use them. A module reaches
+  its own files through `#self/...` (the `imports` field of its package.json, so it can't reach
+  another module's) and the core through `#nexitas/...`. The core imports by relative path.
 - Data access is plain SQL in `server/core/*.ts`: functions that take the database first, no ORM.
   The core's schema changes are a new step in `core.migrations` (`server/core/database.ts`); never
   edit a released step. The core's steps run before the modules', which may refer to `projects`.
