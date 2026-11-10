@@ -62,11 +62,12 @@ const crumbs = computed((): Crumb[] =>
     ? [{ label: section.value.label, to: section.value.href }, ...(props.trail ?? [])]
     : [...(props.trail ?? [])],
 )
-const inspector = computed(() => !!slots.aside && !props.error)
+// A function, not a computed: slots are not reactive, so a computed would miss an aside that a
+// page adds on a new address (?setup) until something else changed.
+const inspector = () => !!slots.aside && !props.error
 // Escape closes the inspector, unless something else that is open (a dialog, a menu) takes it.
 function onKey(event: KeyboardEvent) {
-  if (event.key !== 'Escape' || event.defaultPrevented || !props.asideClose || !inspector.value)
-    return
+  if (event.key !== 'Escape' || event.defaultPrevented || !props.asideClose || !inspector()) return
   if (document.querySelector('dialog[open], [popover]:popover-open')) return
   navigateTo(props.asideClose)
 }
@@ -85,8 +86,8 @@ useHead({
        Both open with a bar of one height, so their seam runs straight across. -->
   <div
     class="shell"
-    :data-inspector="inspector ? '' : undefined"
-    :data-closable="inspector && asideClose ? '' : undefined"
+    :data-inspector="inspector() ? '' : undefined"
+    :data-closable="inspector() && asideClose ? '' : undefined"
     :data-accent="section?.accent"
   >
     <div class="main">
@@ -128,13 +129,13 @@ useHead({
           <div v-else class="stack gap-5"><slot /></div>
         </div>
 
-        <footer v-if="slots.danger && !inspector && !error" class="danger-zone">
+        <footer v-if="slots.danger && !inspector() && !error" class="danger-zone">
           <slot name="danger" />
         </footer>
       </div>
     </div>
 
-    <aside v-if="inspector" class="inspector" :aria-label="asideName ?? asideTitle ?? 'Details'">
+    <aside v-if="inspector()" class="inspector" :aria-label="asideName ?? asideTitle ?? 'Details'">
       <header class="pane-bar hairline-b px-5 gap-3">
         <h2
           v-if="asideName"
