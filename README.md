@@ -221,7 +221,11 @@ A project holds everything, and a module's part of it lives under it:
 The panel is a component in the module's
 `app/components/global/`, given the project as `project`; the shell puts the label above it.
 Server code reaches the core through `#nexitas/server/...`, the pages through the auto-imported
-composables.
+composables. A module reaches its own files through `#self/...`, declared in its package.json:
+
+```json
+"imports": { "#self/*.vue": "./*.vue", "#self/*": "./*.ts" }
+```
 
 ## Checks
 
