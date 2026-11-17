@@ -45,7 +45,8 @@ Use these; don't write a module's own. Something two modules write alike belongs
   (`utils/invalid`); `projectCors` and `readOnlyCors` as a public route's guard (`utils/cors`);
   `requireBearer(event, token)` (`utils/auth`); `newToken(prefix)`, `tokensMatch` (`core/auth`);
   `transaction(db, fn)` (`core/database`); `projectAllows`, `getProject` (`core/projects`);
-  `createLimiter`, `senderNetwork` (`core/limits`).
+  `createLimiter`, `senderNetwork` (`core/limits`); `answerMcp(event, server)` and `tool(…)` for
+  an assistant's MCP tools on a public route (`utils/mcp`).
 - Pages: `useProject()`, `useLive(refresh)`, `useModules()`, `useCapability(name)`, `useSubmit()`
   (auto-imported);
   `useProjectFetch()`, the page kit (see UI), `<FormIssues>`, `<EmbedCode>`, `<CopyButton>`,
